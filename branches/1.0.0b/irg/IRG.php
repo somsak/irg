@@ -42,8 +42,11 @@ class IRG{
             WHERE `graph_local`.`host_id` = {$host_id}";
             return db_fetch_row($sql);
         }
+    }
 
-
+    public function getCactiGraphInfo($graph_id){
+        $sql = "SELECT * FROM `graph_templates_graph` WHERE `local_graph_id` = {$graph_id}";
+        return db_fetch_row($sql);
     }
 
     public function getCactiRRAType($id='all'){
@@ -79,35 +82,114 @@ class IRG{
     public function getReportData($reportDataArray){
         include_once("./lib/rrd.php");
 
-        $reportDataArray['graph_id'];
-        $reportDataArray['rra_type_id'];
-        # Use to calulate overall value
-        $reportDataArray['graph_start'];
-        $reportDataArray['graph_end'];
-        # Use to calculate prime time value
-        $reportDataArray['prime_start'];
-        $reportDataArray['prime_end'];
+        $graphDataArray = array();
+        $graph_data_array["graph_start"] = $reportDataArray['graph_start'];
+        $graph_data_array["graph_end"] = $reportDataArray['graph_end'];
 
-        $graph_data = array();
+        $beginPrime = $reportDataArray['begin_prime'];
+        $beginPrime = explode(':', $beginPrime);
+        $beginPrime = $beginPrime[0].$beginPrime[1];
 
-        # data to be return after calculate
-        $graph_data['avg'] = 0;
-        $graph_data['avg_p'] = 0;
-        $graph_data['max'] = 0;
-        $graph_data['min'] = 0;
+        $endPrime = $reportDataArray['end_prime'];
+        $endPrime = explode(':', $endPrime);
+        $endPrime = $endPrime[0].$endPrime[1];
 
-        $graph_data['e_avg'] = 0;
-        $graph_data['e_avg_p'] = 0;
-        $graph_data['e_max'] = 0;
-        $graph_data['e_min'] = 0;
 
-        $graph_data_array = array();
-        $graph_data_array["graph_start"] = $graph_start;
-        $graph_data_array["graph_end"] = $graph_end;
+        $return_data_array = array();
 
-        $xport_array = rrdtool_function_xport($graph_id, $rra_type_id, $graph_data_array, $xport_meta);
+        $xport_array = rrdtool_function_xport(
+            $reportDataArray['graph_id'],
+            $reportDataArray['rra_type_id'],
+            $graph_data_array,
+            $xport_meta
+        );
 
-        return $xport_array;
+        //print_r($xport_array['meta']);
+
+        // Prepare data array
+        $legends = $xport_array['meta']['legend'];
+
+        // note
+        $graph_note = array();
+        for($i = 1; $i <= $xport_array['meta']['columns']; $i++){
+            $currCol = 'col'.$i;
+            $graph_note[$currCol]['sum'] = 0;
+            $graph_note[$currCol]['max'] = (float)-1.8e307;
+            $graph_note[$currCol]['min'] = (float)1.8e307;
+            $graph_note[$currCol]['count'] = 0;
+
+            $graph_note[$currCol]['p_sum'] = 0;
+            $graph_note[$currCol]['p_max'] = (float)-1.8e307;
+            $graph_note[$currCol]['p_min'] = (float)1.8e307;;
+            $graph_note[$currCol]['p_count'] = 0;
+
+            $graph_note[$currCol]['e_sum'] = 0;
+            $graph_note[$currCol]['e_min'] = (float)-1.8e307;;
+            $graph_note[$currCol]['e_max'] = (float)1.8e307;;
+            $graph_note[$currCol]['e_count'] = 0;
+        }
+
+
+        $data = $xport_array['data'];
+        for($i = 1; $i <= $xport_array['meta']['rows']; $i++){
+            $dataTime = date("Hi", $data[$i]['timestamp']);
+
+            for($j = 1; $j <= $xport_array['meta']['columns']; $j++){
+                $currCol = 'col'.$j;
+
+                if($data[$i][$currCol] != 'NaN'){
+                    $val = abs($data[$i][$currCol]);
+
+                    $val > $graph_note[$currCol]['max'] ? $graph_note[$currCol]['max'] = $val : $graph_note[$currCol]['max'];
+                    $val < $graph_note[$currCol]['min'] ? $graph_note[$currCol]['min'] = $val : $graph_note[$currCol]['min'];
+                    $graph_note[$currCol]['sum'] += $val;
+                    $graph_note[$currCol]['count']++;
+
+                    if($dataTime >= $beginPrime && $dataTime <= $endPrime){
+                        $val > $graph_note[$currCol]['p_max'] ? $graph_note[$currCol]['p_max'] = $val : $graph_note[$currCol]['p_max'];
+                        $val < $graph_note[$currCol]['p_min'] ? $graph_note[$currCol]['p_min'] = $val : $graph_note[$currCol]['p_min'];
+                        $graph_note[$currCol]['p_sum'] += $val;
+                        $graph_note[$currCol]['p_count']++;
+                    }
+                }
+            }
+        }
+
+        // graph base value
+        $graph = $this->getCactiGraphInfo($reportDataArray['graph_id']);
+
+        // data to be return after calculate
+        $return_data = array();
+        $return_data['meta']['title'] = $graph['title_cache'];
+        $return_data['meta']['graph_id'] = $reportDataArray['graph_id'];
+        $return_data['meta']['base_value'] = $graph['base_value'];
+        $return_data['meta']['begin_prime'] = $beginPrime;
+        $return_data['meta']['end_prime'] = $endPrime;
+        $return_data['meta']['graph_start'] = date('Y/m/d H:i', $xport_array['meta']['start']);
+        $return_data['meta']['graph_end'] = date('Y/m/d H:i', $xport_array['meta']['end']);
+
+        $cols = array();
+        for($i = 1; $i <= $xport_array['meta']['columns']; $i++){
+            $currCol = 'col'.$i;
+            $cols[$i -1]['title'] = $xport_array['meta']['legend'][$currCol];
+
+            $cols[$i -1]['avg'] = $graph_note[$currCol]['count'] == 0 ? 0 : ($graph_note[$currCol]['sum'] / $graph_note[$currCol]['count']) / $return_data['meta']['base_value'];
+            $cols[$i -1]['max'] = (float)$graph_note[$currCol]['max'];
+            $cols[$i -1]['min'] = (float)$graph_note[$currCol]['min'];
+
+            $cols[$i -1]['p_avg'] = $graph_note[$currCol]['p_count'] == 0 ? 0 : ($graph_note[$currCol]['p_sum'] / $graph_note[$currCol]['p_count']) / $return_data['meta']['base_value'];
+            $cols[$i -1]['p_max'] = (float)$graph_note[$currCol]['p_max'];
+            $cols[$i -1]['p_min'] = (float)$graph_note[$currCol]['p_min'];
+
+            $cols[$i -1]['e_avg'] = $graph_note[$currCol]['e_count'] == 0 ? 0 : ($graph_note[$currCol]['e_sum'] / $graph_note[$currCol]['e_count']) /  $return_data['meta']['base_value'];
+            $cols[$i -1]['e_max'] = (float)$graph_note[$currCol]['e_max'];
+            $cols[$i -1]['e_min'] = (float)$graph_note[$currCol]['e_min'];
+        }
+
+        $return_data['cols'] = $cols;
+
+        //print_r($return_data);
+        return $return_data;
     }
 
     public function getTimeStamp($dateTime){

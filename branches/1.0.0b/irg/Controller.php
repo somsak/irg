@@ -54,6 +54,21 @@ switch ($a) {
 
         echo json_encode($rras);
         break;
+
+    case 'graphReport':
+        header("Content-type: application/json");
+
+        $data = array();
+        $data['graph_id'] = $_GET['graphID'];
+        $data['rra_type_id'] = $_GET['rraTypeID'];
+        $data['graph_start'] = $_GET['beginDateTime'];
+        $data['graph_end'] = $_GET['endDateTime'];
+        $data['begin_prime'] =$_GET['beginPrime'];
+        $data['end_prime'] =$_GET['endPrime'];
+
+        $graph =$api->getReportData($data);
+        echo json_encode($graph);
+        break;
     case 'timestamp':
         header("Content-type: application/json");
 

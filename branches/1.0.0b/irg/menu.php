@@ -9,11 +9,11 @@
             .css('font-size', '130%')
             .css('font-weight', 'bold');
         });
-    });  
+    });
 </script>
 <div class="menu">
-    <a href="/cacti/plugins/irg/make_report.php">make report</a> 
-    <a href="/cacti/plugins/irg/report_archives.php">report archives</a> 
+    <a href="/cacti/plugins/irg/make_report.php">make report</a>
+    <a href="/cacti/plugins/irg/report_archives.php">report archives</a>
     <a href="/cacti/plugins/irg/sample_report.php">sample report</a>
     <a href="/cacti/plugins/irg/exclude.php">excluded periods</a>
     <a href="/cacti/plugins/irg/doc/api_doc.php">api</a>

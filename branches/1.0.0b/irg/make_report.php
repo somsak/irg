@@ -5,7 +5,6 @@ require("IRG.php");
 include("./include/top_graph_header.php");
 include($config['base_path'] . "/plugins/irg/menu.php");
 $api = IRG::getInstance();
-
 ?>
 
 <link type="text/css" href="css/ui-lightness/jquery-ui-1.7.2.custom.css" rel="Stylesheet" />
@@ -35,6 +34,7 @@ $api = IRG::getInstance();
         $(".selectButton").css('width', '120px');
         $(".select").css('width', '200px')
         .attr('size', '10');
+        $(".data").sortable();
 
         function setRRATypes(data){
             rraTypes = data;
@@ -49,7 +49,6 @@ $api = IRG::getInstance();
             },
             success: function(data){
                 setRRATypes(data);
-                return;
             },
             dataType: "json"
         });
@@ -66,7 +65,6 @@ $api = IRG::getInstance();
             },
             success: function(data){
                 setGraphs(data);
-                return;
             },
             dataType: "json"
         });
@@ -81,13 +79,10 @@ $api = IRG::getInstance();
             },
             success: function(data){
                 setHosts(data);
-                return;
             },
             dataType: "json"
         });
     }
-
-
 
     function getCheckedHosts(){
         return $("#hostSelect :selected");
@@ -145,7 +140,6 @@ $api = IRG::getInstance();
 
     function addGraphOnclick(){
         $("#graphSelected").append($("#graphSelect :selected").attr('selected', '').remove());
-
     }
 
     function removeGraphOnclick(){
@@ -180,8 +174,6 @@ $api = IRG::getInstance();
                     $("#beginDate").val(beginDate);
                     $("#beginTime").val("00:00");
                     $("#endTime").val("00:00");
-
-                    return;
                 } else{
                     endTime = $("#endTime").val();
                     endTime = endTime.split(":");
@@ -209,17 +201,27 @@ $api = IRG::getInstance();
 
                     $("#beginTime").val(beginH + ":" + beginM);
                     $("#beginDate").val($("#endDate").val());
-
-                    return;
                 }
             }
         }
     }
 
-    function makeReport(){
+    function preview(){
         $("#graphSelected *").attr('selected', 'selected');
         var rraType = $("#rraType").val();
         var graphIDs = $("#graphSelected").val();
+        var hostIDs = new Array();
+
+        for(i=0; i < graphIDs.length; i++){
+            for(j=0; j < graphs.length; j++){
+                if(graphIDs[i] == graphs[j].id){
+                    var host_id = graphs[j].host_id;
+                    if($.inArray(host_id, hostIDs) == -1){
+                        hostIDs.push(graphs[j].host_id);
+                    }
+                }
+            }
+        }
 
         // report begin date
         var beginDate = $("#beginDate").val();
@@ -227,13 +229,11 @@ $api = IRG::getInstance();
         // report end date
         var endDate = $("#endDate").val();
         var endTime = $("#endTime").val();
-
+        // report prime time
         var beginPrime = $("#beginPrime").val();
         var endPrime = $("#endPrime").val();
 
         if(graphIDs != null){
-
-
             rraType = $("#rraType :selected").val();
             beginDateTime = beginDate + " " + beginTime;
             endDateTime = endDate + " " + endTime;
@@ -252,37 +252,74 @@ $api = IRG::getInstance();
                 },
                 success: function(data){
                     setTimeStamp(data);
-                    return;
                 },
                 dataType: "json"
             });
 
+            // Report configuration
             var conf = "<table>";
             for(var i=0; i < rraTypes.length; i++){
                 if(rraType == rraTypes[i].id){
                     conf += "<tr><td><strong>RRA Type</strong></td><td>" + rraTypes[i].name + "<td></tr>";
                 }
             }
+            conf += "<tr><td><strong>Host IDs</strong></td><td>" + hostIDs.toString() + "<td></tr>";
             conf += "<tr><td><strong>Graph IDs</strong></td><td>" + graphIDs.toString() + "<td></tr>";
-            conf += "<tr><td><strong>Begin Date</strong></td><td>" + beginDate + "<td></tr>";
-            conf += "<tr><td><strong>End Date</strong></td><td>" + endDate + "<td></tr>";
+            conf += "<tr><td><strong>Begin Date</strong></td><td>" + beginDate + " " + beginTime + "<td></tr>";
+            conf += "<tr><td><strong>End Date</strong></td><td>" + endDate + " " + endTime + "<td></tr>";
             conf += "<tr><td><strong>Begin Prime</strong></td><td>" + beginPrime + "<td></tr>";
             conf += "<tr><td><strong>End Prime</strong></td><td>" + endPrime + "<td></tr>";
             conf += "</table>";
 
+            // Graph preview
             html = "";
+
             for (var i=0; i < graphIDs.length; i++) {
-                html += "<p><img  src=\"/cacti/graph_image.php?local_graph_id=";
-                html += graphIDs[i];
-                html += "&view_type=";
-                html += "&rra_id=" + rraType;
-                html += "&graph_start=" + timeStamps.beginTimeStamp
-                html += "&graph_end=" + timeStamps.endTimeStamp
-                html += "\" /></p>";
+                $.ajax({
+                    type: "GET",
+                    async: false,
+                    url: "Controller.php",
+                    data: {
+                        a: "graphReport",
+                        graphID: graphIDs[i],
+                        rraTypeID: rraType,
+                        beginDateTime: timeStamps.beginTimeStamp,
+                        endDateTime: timeStamps.endTimeStamp,
+                        beginPrime: beginPrime,
+                        endPrime: endPrime,
+                    },
+                    success: function(data){
+                        html += "<h2 style=\"background-color: #657AAA;padding-left: 5px;padding-right: 5px;color: white;\">" + data.meta.title + "</h2>";
+                        html += "<p><img  src=\"/cacti/graph_image.php?local_graph_id=";
+                        html += data.meta.graph_id;
+                        html += "&view_type=";
+                        html += "&rra_id=" + rraType;
+                        html += "&graph_start=" + timeStamps.beginTimeStamp
+                        html += "&graph_end=" + timeStamps.endTimeStamp
+                        html += "\" /></p>";
+
+                        html += "<div class=\"data\">";
+                        for(var i = 0; i < data.cols.length; i++){
+                            //html += "<div style=\"position: static;\">";
+                            html += "<table>";
+                            html += "<tr><td><div style=\"background-color: #657AAA;padding-left: 5px;padding-right: 5px;color: white;\"><strong>TITLE</strong></div></td><td><div style=\"background-color: #657AAA;padding-left: 5px;padding-right: 5px;color: white;\">" + data.cols[i].title + "</div></td><br></tr>";
+                            html += "<tr><td><div style=\"background-color: #657AAA;padding-left: 5px;padding-right: 5px;color: white;\"><strong>AVERAGE</strong></div></td><td>" + data.cols[i].avg + "</td><br></tr>";
+                            html += "<tr><td><div style=\"background-color: #657AAA;padding-left: 5px;padding-right: 5px;color: white;\"><strong>PEAK</strong></div></td><td>" + data.cols[i].max + "</td><br></tr>";
+                            html += "<tr><td><div style=\"background-color: #657AAA;padding-left: 5px;padding-right: 5px;color: white;\"><strong>PRIME TIME AVERAGE</strong></div></td><td>" + data.cols[i].p_avg + "</td><br></tr>";
+                            html += "<tr><td><div style=\"background-color: #657AAA;padding-left: 5px;padding-right: 5px;color: white;\"><strong>PRIME TIME PEAK</strong></div></td><td>" + data.cols[i].p_max + "</td><br></tr>";
+                            html += "</table>";
+                            //html += "</div>";
+                        }
+
+                        html += "</div>";
+                    },
+                    dataType: "json"
+                });
             };
 
             $("#graphPreview").html(html);
             $("#reportConfig").html(conf);
+            $("#preview").show();
             togglePanel();
         } else{
             $("#graphSelected")
@@ -293,10 +330,27 @@ $api = IRG::getInstance();
 
     function togglePanel(){
         $("#panel").toggle();
+
     }
+
+    function clearButtonOnclick(){
+        $("#graphPreview").html("");
+        $("#reportConfig").html("");
+        $("#preview").hide();
+        $("#panel").show();
+        resetOnclick();
+    }
+
+    function printPreview(){
+
+    }
+
 </script>
 <p>
-    <button id="togglePanelButton" onclick="togglePanel()">toggle make a report panel</button>
+    <button id="togglePanelButton" onclick="togglePanel(); return false;">
+        toggle make a report panel
+    </button>
+    <button id="clearButton" onclick="clearButtonOnclick(); return false;">clear</button>
 </p>
 
 <div class="irg" id="panel" style="padding-left:5px">
@@ -306,7 +360,7 @@ $api = IRG::getInstance();
         <tr>
             <td valign="top">
                 <h2>Report Type</h2>
-                <select name="rraType" id="rraType" onchange="endDateOnchange()">
+                <select name="rraType" id="rraType" onchange="endDateOnchange(); return false;">
                 <?php $rra_types = $api->getCactiRRAType(); ?>
                     <?php foreach ($rra_types as $rra_type): ?>
                         <option value="<?php echo $rra_type['id']; ?>"><?php echo $rra_type['name']; ?></option>
@@ -331,8 +385,8 @@ $api = IRG::getInstance();
                             <strong>End Date:</strong>
                         </td>
                         <td>
-                            <input class="datepicker" type="text" name="endDate" id="endDate" onchange="endDateOnchange()" value="<?php echo date("Y/m/d"); ?>"/>&nbsp;
-                            <input type="text" name="endTime" id="endTime" value="<?php echo date("00:00"); ?>" onchange="endDateOnchange()"/>
+                            <input class="datepicker" type="text" name="endDate" id="endDate" onchange="endDateOnchange(); return false;" value="<?php echo date("Y/m/d"); ?>"/>&nbsp;
+                            <input type="text" name="endTime" id="endTime" value="<?php echo date("00:00"); ?>" onchange="endDateOnchange(); return false;"/>
                         </td>
                     </tr>
                 </table>
@@ -373,7 +427,7 @@ $api = IRG::getInstance();
         <tr>
             <td>
                 <h3>hosts</h3>
-                <select class="select" name="hostSelect" id="hostSelect" multiple onchange="hostOnchange()">
+                <select class="select" name="hostSelect" id="hostSelect" multiple onchange="hostOnchange(); return false;">
             <?php foreach ($hosts as $host): ?>
                 <option value="<?php echo $host['id']; ?>"><?php echo $host['hostname']; ?></option>
             <?php endforeach ?>
@@ -381,23 +435,23 @@ $api = IRG::getInstance();
             </td>
             <td>
                 <h3>graphs</h3>
-                <select class="select" name="graphSelect" id="graphSelect" multiple onchange="graphOnchange()">
+                <select class="select" name="graphSelect" id="graphSelect" multiple onchange="graphOnchange(); return false;">
                 </select>
             </td>
             <td valign="center">
-                <button class="selectButton" id="allHost" onclick="allHostOnclick()">
+                <button class="selectButton" id="allHost" onclick="allHostOnclick(); return false;">
                     all host
                 </button><br>
-                <button class="selectButton" id="allGraph" onclick="allGraphOnclick()">
+                <button class="selectButton" id="allGraph" onclick="allGraphOnclick(); return false;">
                     all graph
                 </button><br>
-                <button class="selectButton" id="addGraph" onclick="addGraphOnclick()">
+                <button class="selectButton" id="addGraph" onclick="addGraphOnclick(); return false;">
                     &gt;&gt;
                 </button><br>
-                <button class="selectButton" id="removeGraph" onclick="removeGraphOnclick()">
+                <button class="selectButton" id="removeGraph" onclick="removeGraphOnclick(); return false;">
                     &lt;&lt;
                 </button><br>
-                <button class="selectButton" id="resetSelect" onclick="resetOnclick()">
+                <button class="selectButton" id="resetSelect" onclick="resetOnclick(); return false;">
                     reset
                 </button>
             </td>
@@ -413,26 +467,37 @@ $api = IRG::getInstance();
 <table>
     <tr>
         <td valign="top">
-            <input type="button" name="make_button" value="make" id="make_button" onclick="makeReport()">
+            <input type="button" name="previewButton" value="preview" id="previewButton" onclick="preview(); return false;">
         </td>
     </tr>
 </table>
 </div>
-<div>
-    <div style="margin: 5px;float: left;">
-        <div style="background-color: #657AAA;padding-left: 5px;padding-right: 5px;">
+<div id="preview" style="display: none;">
+    <div style="float: left; margin: 5px;">
+        <div style="background-color: #657AAA;padding-left: 5px;padding-right: 5px;color: white;">
             <h2>Graphs Preview</h2>
         </div>
         <p id="graphPreview">
 
         </p>
     </div>
-    <div style="float:left;margin: 5px;">
-        <div style="background-color: #657AAA;padding-left: 5px;padding-right: 5px;">
-            <h2>Report configuration</h2>
+    <div style="float: left; margin: 5px;max-width: 350px;">
+        <div style="background-color: #657AAA;padding-left: 5px;padding-right: 5px;color: white;">
+            <h2>Report Configuration</h2>
         </div>
         <p id="reportConfig">
 
         </p>
+        <div style="background-color: #657AAA;padding-left: 5px;padding-right: 5px;color: white;">
+            <h2>Summary</h2>
+        </div>
+        <p id="reportSummary">
+
+        </p>
+        <div>
+            <p>
+
+            </p>
+        </div>
     </div>
 </div>
