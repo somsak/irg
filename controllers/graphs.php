@@ -85,6 +85,8 @@ class GraphController {
         $endPrimeTimestamp = Utils::convertToTimestamp($day.' '.$endPrime);
 
         $graphDataArray = array();
+        $graphDataArray['graph_start'] = $graphStart;
+        $graphDataArray['graph_end'] = $graphEnd;
         $exportArray = rrdtool_function_xport(
             $graphID,
             $rraTypeID,
