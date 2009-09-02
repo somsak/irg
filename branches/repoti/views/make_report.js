@@ -26,7 +26,7 @@ make_report.init = function() {
             maxDate: 0,
         });
     $("#report-end-time").bind("change", function(e){
-           make_report.endTimeOnchange($(this).val());
+            make_report.endTimeOnchange($(this).val());
         });
     $("#report-begin-prime-time").bind("change", function(e){
             make_report.beginPrimeTimeOnchange($(this).val());
@@ -34,6 +34,9 @@ make_report.init = function() {
     $("#report-end-prime-time").bind("change", function(e){
             make_report.endPrimeTimeOnchange($(this).val());
         });
+    $("#collapse-expend-host-graph").bind("click", function(e){
+            $(".graph-list").toggle();
+    });
 
     make_report.updateConf();
     make_report.updatePreview();
