@@ -50,7 +50,7 @@
             <div id="host-and-graph" class="hide-item">
             <div class="h3-bg-1"><h3>Host and Graph</h3></div>
             <div class="content-2">
-                <div class="col-ex-ul">Collapse / Expand</div><br>
+                <div id="collapse-expend-host-graph" class="col-ex-ul">Collapse / Expand</div><br>
                 <div>
                     <ul id="graph-select">
                     </ul>
