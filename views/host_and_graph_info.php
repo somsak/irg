@@ -8,9 +8,7 @@ $(document).ready(function(){
 });
 </script>
 <div id="repoti">
-    <?php include('navigator.php');?>
     <div id="repoti-left">
-
     </div>
     <div id="repoti-right">
         <div id="hostOl"></div>

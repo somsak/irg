@@ -118,6 +118,7 @@ Graph.HTML.li_select = function(hosts) {
 }
 
 Graph.HTML.getGraphStatTables = function(graph, report) {
+    var rraType = report.getRRAType();
     var html = "";
     $.ajax({
         type: "GET",
@@ -128,35 +129,24 @@ Graph.HTML.getGraphStatTables = function(graph, report) {
             a: "getstat",
             graphId : graph.getGraphId(),
             rraTypeId : report.getRRAType().getRRAId(),
+            timespan: rraType.getTimespan(),
             graphStart : report.getGraphBeginTimestamp(),
             graphEnd : report.getGraphEndTimestamp(),
             beginPrime : report.getBeginPrimeTime(),
             endPrime : report.getEndPrimeTime(),
         },
         success: function(data){
-            var td1 = "";
-            var td2 = "";
-
+            html = "";
+            html += "<table class='graph-stat'>";
+            html += "<tr><th>value</th><th>Average</th><th>Peak</th><th>Prime time average</th>";
+            html += "<th>Previous Average</th><th>Previous Peak</th><th>Previous Prime time average</th></tr>";
             for(var i = 0; i < data.cols.length; i++){
-                // Data table here
-                html = "";
-                html += "<table class='repoti graph-stat'>";
-                html += "<tr><th>Value:</div></th><td>" + data.cols[i].title + "</td><br></tr>";
-                html += "<tr><th>AVERAGE:</th><td>" + data.cols[i].avg + "</td></tr>";
-                html += "<tr><th>PEAK:</th><td>" + data.cols[i].max + "</td></tr>";
-                html += "<tr><th>PRIME TIME AVERAGE:</th><td>" + data.cols[i].p_avg + "</td></tr>";
-                html += "</table>";
-
-                if( i % 2 == 0) {
-                    td1 += html;
-                } else {
-                    td2 += html;
-                }
+                html += "<tr><td>" + data.cols[i].title + "</td><td>" + data.cols[i].avg + "</td><td>" +data.cols[i].max + "</td><td>" + data.cols[i].p_avg + "</td>";
+                html += "<td>" + data.cols[i].pre_avg + "</td><td>" + data.cols[i].pre_max + "</td><td>" +data.cols[i].pre_p_avg + "</td></tr>";
             }
-
-            html = "<table><tr><td>" + td1 + "</td><td>" + td2 + "</td></tr></table>";
+            html += "</table>";
         },
-        dataType: "json",
+        dataType: "json"
     });
 
     return html;

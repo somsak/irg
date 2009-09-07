@@ -1,9 +1,3 @@
-h3 {
-    margin: 0px 0px 0px 0px;
-    padding-left: 0.75em;
-    padding-top: 0.25em;
-}
-
 #repoti {
     position: absolute;
     top: 30px;
@@ -106,7 +100,7 @@ h3 {
     text-align: center;
 }
 
-#preview, .host-graph-list {
+.host-graph-list {
     list-style: none;
     padding: 0;
     margin: 0;
@@ -135,9 +129,6 @@ h3 {
     float: right;
     background-color: #BCBCBC;
     padding: 0em 1em 0em 1em;
-
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
 }
 
 .col-ex-ul {
@@ -185,25 +176,31 @@ h3 {
 }
 
 .graph-stat {
-    max-width: 320px;
-    min-width: 320px;
+    min-width: 650px;
+    max-width: 650px;
 
-    background-color: #FFFF99;
+    # background-color: #FFFF99;
+    font-size: 11px;
     padding: 0.25em 0.25em 0.25em 0.25em;
     margin: 0.25em 0.25em 0.25em 0.25em;
+    border: thin solid;
+}
 
-    -moz-border-radius: 6px;
-    -webkit-border-radius: 6px;
+.graph-stat table {
+
 }
 
 .graph-stat th {
-    min-width: 150px;
+    max-width: 150px;
 
+    background: #FFFAAA;
+    text-align: center;
     padding: 0;
 }
 
 .graph-stat td {
-    border-bottom: 1.5px solid;
+    width: 14%;
+    text-align: center;
     padding: 0;
 }
 
@@ -212,5 +209,5 @@ h3 {
 }
 
 #more-action-menu button{
-    min-width: 12em;
+
 }

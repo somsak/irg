@@ -33,19 +33,20 @@
             <div>
                 <div id="more-action-menu" class="hide-item">
                     <div class="h3-bg-1"><h3>Templates</h3></div>
-                    <br>
-                    <div style="text-align: left;">
-                        <select id="template-id" style="width: 100%;"></select>
-                        <button id="load-template" style="float: left;">load template</button>
-                        <button id="delete-template">delete</button></br>
-                    </div><br>
                     <div style="padding: 5px; text-align: left;">
-                        <strong>template name:</strong><br>
-                        <input id="template-name" type="text" style="width: 100%;"/><br>
+                        <select id="template-id" style="width: 90%;"></select>
+                        <table>
+                            <tr>
+                                <td><button id="load-template">load</button></td>
+                                <td><button id="delete-template">delete</button></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div style="padding: 5px; text-align: left;">
+                        <span>name: </span><input id="template-name" type="text" style="width: 90%;"/><br>
                     </div>
                     <button id="save-as-template" >save as template</button>
                 </div>
-                <br>
             </div>
             <div id="host-and-graph" class="hide-item">
             <div class="h3-bg-1"><h3>Host and Graph</h3></div>
@@ -90,7 +91,7 @@
                 </form>
                 </div>
             </div>
-            <div class="h3-bg-1"><h3 style="position: absolute; left:0;">Preview</h3><div style="position: absolute; right: 0;"><button id="make-report" style="display: none;">Make</button></div></div>
+            <div class="h3-bg-1"><h3>Preview & Edit</h3>
             <div class="content-2">
                 <div>
                     <ul id="preview"></ul>
@@ -98,9 +99,10 @@
             </div>
         </div>
     </div>
-    <button style="position: fixed; top: 0; right: 0;z-index: 101;" onclick="make_report.toggle(); return false;">
-    toggle
-    </button>
+    <div style="position: fixed; top: 0; right: 0;z-index: 101;" >
+        <button onclick="make_report.toggle(); return false;">toggle</button>
+        <button id="make-report">Make</button>
+    </div>
 </div>
 </body>
 </html>
