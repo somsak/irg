@@ -56,12 +56,13 @@ switch ($c) {
             case 'getstat':
                 $graphId = $_GET['graphId'];
                 $rraTypeId = $_GET['rraTypeId'];
+                $timespan = $_GET['timespan'];
                 $graphStart = $_GET['graphStart'];
                 $graphEnd = $_GET['graphEnd'];
                 $beginPrime = $_GET['beginPrime'];
                 $endPrime = $_GET['endPrime'];
 
-                echo json_encode($g->getGraphStat($graphId, $rraTypeId,
+                echo json_encode($g->getGraphStat($graphId, $rraTypeId, $timespan,
                 $graphStart, $graphEnd, $beginPrime, $endPrime));
                 break;
 

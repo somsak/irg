@@ -68,19 +68,19 @@ Host.getHostById = function(hostId) {
 
 Host.HTML = {};
 Host.HTML.ol = function(hosts){
-    html = "<div>";
+    var html = "<div>";
     for(h in hosts){
-        html += "<li class='host-li'>";
-        html += "<h3>" + hosts[h].getDescription() + "</h3>";
+        var host = hosts[h];
+        html += "<h3>" + host.getDescription() + "</h3>";
 
-        graphs = hosts[h].getGraphs();
+        graphs = host.getGraphs();
         html += "<div>";
         html += "<ol>";
         for(g in graphs){
-            html += "<li><b>host id: </b>" + graphs[g].getHostId() + " ";
-            html += "<b>graph id: </b>" + graphs[g].getGraphId() + " ";
-            html += "<b>graph url: </b>" + graphs[g].getImageUrl() + " ";
-            html += "<b>title: </b>" + graphs[g].getTitle() + "</li>";
+            var graph = graphs[g];
+            html += "<li><b>host id: </b>" + graph.getHostId() + " ";
+            html += "<b>graph id: </b>" + graph.getGraphId() + " ";
+            html += "<b>title: </b>" + graph.getTitle() + "</li>";
         }
         html += "</ol>";
         html += "</li>";

@@ -37,6 +37,9 @@ make_report.init = function() {
     $("#collapse-expend-host-graph").bind("click", function(e){
             $(".graph-list").toggle();
     });
+    $("#make-report").bind("click", function(e) {
+            make_report.make();
+        });
 
     make_report.updateConf();
     make_report.updatePreview();
@@ -88,6 +91,11 @@ make_report.loadTemplate = function() {
     var template = templates[templateId];
     var templateRRA = template.getRRAType();
     var graphs = template.getGraphs();
+
+    var checked = $(".graph-list :checked");
+        $.each(checked, function(i, e) {
+        var id = $(e).attr("checked", "");
+    });
 
     $("#report-rra-type-id").val(templateRRA.getRRAId());
     make_report.rraTypeOnchange(templateRRA.getRRAId());
@@ -155,7 +163,7 @@ make_report.updatePreview = function() {
     });
 
     report.setGraphs(previewGraphs);
-    $("#preview").html(Report.HTML.li_preview(report));
+    $("#preview").html("<div>" + Report.HTML.li_preview(report) + "</div>");
 
     previewGraphs = new Array();
 }
@@ -187,6 +195,18 @@ make_report.toggle = function() {
                 });
         }
     });
+}
+
+make_report.make = function() {
+    var html = '<head><title>Report</title><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /></head>';
+    html += $("#preview :first").html();
+    var report =  window.open();
+
+    report.document.open();
+    report.document.write(html);
+    report.document.close();
+
+    return false;
 }
 
 $(document).ready(function() {
