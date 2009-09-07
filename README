@@ -1,0 +1,24 @@
+Installation
+Extract cacti-plugin-0.8.7e-PA-v2.5.zip to cacti/
+        shell> patch -p1 -N < cacti-plugin-0.8.7e-PA-v2.5.diff
+    2. Extract repoti*.tar.gz to cacti/plugins
+    3. Edit cacti database username/password in cacti/include/config.php
+    4. Edit cacti plug-ins in cacti/include/global.php
+        change  $config['url_path'] = '/'; > $config['url_path'] = '/cacti/';
+        add     $plugins[] = 'repoti'; after $plugins[] = array();
+    5. Change owner for cacti/rra/ and cacti/log
+        shell> useradd cactiuser
+        shell> chown -R cactiuser rra/ log/
+    6. Edit crontrap
+        */5 * * * * root php /var/www/cacti/poller.php > /dev/null 2>&1
+    7. Create database for cacti
+        shell> mysqladmin create cacti -p
+        shell> mysql cacti < cacti.sql
+        shell> mysql cacti < pa.sql
+        shell> mysql -u root mysql -p
+        mysql> CREATE USER 'cactiuser'@'localhost' IDENTIFIED BY '<password>';
+        mysql> GRANT ALL ON cacti.* TO cactiuser@localhost IDENTIFIED BY '<password>';
+        mysql> flush privileges;
+    8. Go to http://domain.com/cacti and following cacti's instructions
+    9. In console > User Management check Plugin Management
+    10. In console > Plugin Management install and enable Nagios Plugin for Cacti
