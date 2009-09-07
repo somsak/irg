@@ -1,5 +1,10 @@
+Prerequisite
+
+Plugin Architecture:
+http://mirror.cactiusers.org/downloads/plugins/cacti-plugin-0.8.7e-PA-v2.5.zip
+
 Installation
-Extract cacti-plugin-0.8.7e-PA-v2.5.zip to cacti/
+    1. Extract cacti-plugin-0.8.7e-PA-v2.5.zip to cacti/
         shell> patch -p1 -N < cacti-plugin-0.8.7e-PA-v2.5.diff
     2. Extract repoti*.tar.gz to cacti/plugins
     3. Edit cacti database username/password in cacti/include/config.php
