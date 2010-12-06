@@ -6,8 +6,11 @@ import urllib
 import urllib2
 from urllib2 import urlopen as _urlopen
 import struct
+import re
 
 import simplejson
+
+warning_cre = re.compile(r'<br />.*<br />\n', re.S)
 
 opener = urllib2.build_opener(urllib2.HTTPCookieProcessor())
 urllib2.install_opener(opener)
@@ -122,6 +125,7 @@ class IRG:
                 'endPrime': end_prime}
         fd = urlopen(self.repoti_url+'?'+urllib.urlencode(data))
         json = fd.read()
+        json = warning_cre.sub('', json)
         return simplejson.loads(json)
 
     def get_graph_image(self, graph_id, rra_id, start_time, end_time):
