@@ -6,3 +6,15 @@ Prerequisites
 
 * ODFPY 0.9.2 - Python API for OpenDocument
                 http://opendocumentfellowship.com/projects/odfpy
+
+Locale
+------
+
+* Append below two lines to /var/lib/locales/supported.d/local
+
+th_TH.UTF-8 UTF-8
+th_TH.TIS-620 TIS-620
+
+* Rebuild locales
+
+sudo dpkg-reconfigure locales
