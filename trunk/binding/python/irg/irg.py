@@ -126,7 +126,13 @@ class IRG:
         fd = urlopen(self.repoti_url+'?'+urllib.urlencode(data))
         json = fd.read()
         json = warning_cre.sub('', json)
-        return simplejson.loads(json)
+        try:
+            o = simplejson.loads(json)
+        except Exception, why:
+            print self.repoti_url+'?'+urllib.urlencode(data)
+            print json
+            o = None
+        return o
 
     def get_graph_image(self, graph_id, rra_id, start_time, end_time):
         data = {'local_graph_id': str(graph_id),
