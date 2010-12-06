@@ -316,6 +316,9 @@ class Report:
             stat = self.irg.get_stat(graph_id, report['rratype_id'],
                                      timespan, start, end,
                                      report['begin_prime'], report['end_prime'])
+            if not stat:
+                self.verbose('ignoring %s' % graph_id)
+                continue
             image = self.irg.get_graph_image(graph_id, report['rratype_id'],
                                              start, end)
             self.generate_graph(stat, image)
