@@ -9,7 +9,7 @@ import locale
 import time
 
 from irg.irg import IRG, get_param_monthly, get_image_info
-from irg.repoti import Report
+from irg.repoti import Report, populate_words, replace_words
 
 class App:
     def __init__(self):
