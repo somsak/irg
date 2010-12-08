@@ -47,6 +47,11 @@ def get_param_monthly(year, month):
     end = int(time.mktime((year, month, last, 23, 59, 60, 0, 1, 0)))
     return end-start, start, end
 
+def get_param_range(start, end):
+    start = int(start)
+    end = int(end)
+    return end-start, start, end
+
 class IRG:
     def __init__(self, url, user, passwd, verbose=True):
         self._verbose = verbose
@@ -140,6 +145,7 @@ class IRG:
                 'graph_start': str(start_time),
                 'graph_end': str(end_time)}
         fd = urlopen(self.graph_url+'?'+urllib.urlencode(data))
+        print self.graph_url+'?'+urllib.urlencode(data)
         content = fd.read()
         return content
 
