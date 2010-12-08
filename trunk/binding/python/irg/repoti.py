@@ -13,7 +13,7 @@ from odf.style import Style
 from odf.style import TextProperties, TableCellProperties, ParagraphProperties
 from odf.text import H, P, Span
 
-from irg import IRG, get_param_monthly, get_image_info
+from irg import IRG, get_param_monthly, get_param_range, get_image_info
 
 def build_style(name, family, properties, attributes={}):
     style = Style(name=name, family=family, **attributes)
@@ -304,9 +304,16 @@ class Report:
                 tr.addElement(tc)
                 tc.addElement(P(text=val, stylename=style))
 
-    def generate(self, year, month, report_name):
-        report = self.irg.get_report_by_name(report_name)
+    def generate_range(self, start, end, report_name):
+        timespan, start, end = get_param_range(start, end)
+        return self._generate(timespan, start, end, report_name)
+
+    def generate_monthly(self, year, month, report_name):
         timespan, start, end = get_param_monthly(year, month)
+        return self._generate(timespan, start, end, report_name)
+
+    def _generate(self, timespan, start, end, report_name):
+        report = self.irg.get_report_by_name(report_name)
 
         h = H(outlinelevel=1, stylename=self.styles['Heading 1'], text='Monthly Report')
         self.doc.text.addElement(h)
@@ -330,72 +337,3 @@ class Report:
     def save(self, filename):
         self.doc.save(filename)
         self.verbose('saved %s' % filename)
-
-class App:
-    def __init__(self):
-        self.parse_args()
-
-    def parse_args(self):
-        now = datetime.now()
-        usage = 'usage: %prog [options] cacti_url'
-        parser = OptionParser(usage=usage)
-
-        parser.add_option('-v', '--verbose', dest='verbose',
-                          default=False, action='store_true',
-                          help='Enable verbose mode [no]')
-        parser.add_option('-u', '--user', dest='user',
-                          help='Cacti username [required]')
-        parser.add_option('-p', '--password', dest='password',
-                          help='Cacti password [required]')
-        parser.add_option('-y', '--year', dest='year', type='int',
-                          default=now.year,
-                          help='Year [%d]' % now.year)
-        parser.add_option('-m', '--month', dest='month', type='int',
-                          default=now.month,
-                          help='Month [%d]' % now.month)
-        parser.add_option('-r', '--report', dest='report',
-                          default='report',
-                          help='Report template name [report]')
-        parser.add_option('--header', dest='header',
-                          default='REPORT_header.odt',
-                          help='Header filename with REPORT substitution [report_header.odt]')
-        parser.add_option('--footer', dest='footer',
-                          default='REPORT_footer.odt',
-                          help='Footer filename with REPORT substitution [report_footer.odt]')
-        parser.add_option('-o', '--output', dest='output',
-                          default='REPORT_YYYYMM.odt',
-                          help='Output filename with REPORT, YYYY, MM substitution [report_%d%d.odt]' % (now.year, now.month))
-
-        self.options, self.args = parser.parse_args()
-
-        if len(self.args) != 1 or \
-           not self.options.user or not self.options.password:
-            parser.print_help()
-            sys.exit(-1)
-        self.url = self.args[0]
-
-        self.keywords = [('REPORT', str(self.options.report)),
-                         ('YYYY', str(self.options.year)),
-                         ('MM', str(self.options.month))]
-        self.keywords += populate_words(self.options.year, self.options.month)
-
-        self.options.output = replace_words(self.options.output, self.keywords)
-        self.options.header = replace_words(self.options.header, self.keywords)
-        self.options.footer = replace_words(self.options.footer, self.keywords)
-
-    def run(self):
-        irg = IRG(self.url, self.options.user, self.options.password,
-                  verbose=self.options.verbose)
-        report = Report(irg, verbose=self.options.verbose)
-        if os.path.exists(self.options.header):
-            report.insert_doc(self.options.header, self.keywords)
-        report.setup_styles()
-        report.generate(self.options.year, self.options.month,
-                        self.options.report)
-        if os.path.exists(self.options.footer):
-            report.insert_doc(self.options.footer, self.keywords)
-        report.save(self.options.output)
-
-if __name__ == '__main__':
-    app = App()
-    app.run()
