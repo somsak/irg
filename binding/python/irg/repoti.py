@@ -238,6 +238,8 @@ class Report:
             if e.tagName not in ['office:forms', 'text:sequence-decls']:
                 self.doc.text.addElement(copy.deepcopy(e))
 
+        for p in doc.Pictures:
+            self.doc.Pictures[p] = doc.Pictures[p]
 #        for e in a.childNodes:
 #            print e.tagName, e.attributes
 
