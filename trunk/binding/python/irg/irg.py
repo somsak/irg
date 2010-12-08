@@ -145,7 +145,6 @@ class IRG:
                 'graph_start': str(start_time),
                 'graph_end': str(end_time)}
         fd = urlopen(self.graph_url+'?'+urllib.urlencode(data))
-        print self.graph_url+'?'+urllib.urlencode(data)
         content = fd.read()
         return content
 
