@@ -164,12 +164,23 @@ class Report:
         ])
         s.addElement(self.styles['Heading 3'])
 
-        self.auto_styles['Table.HC'] = build_style(
-                'Table.HC', 'table-cell', [
+        self.auto_styles['Table.H1'] = build_style(
+                'Table.H1', 'table-cell', [
                 TableCellProperties(verticalalign='middle',
-                                    backgroundcolor='#777777'),
+                                    backgroundcolor='#777777',
+                                    border='0.0007in solid #000000'),
         ])
-        a.addElement(self.auto_styles['Table.HC'])
+        a.addElement(self.auto_styles['Table.H1'])
+
+        self.auto_styles['Table.H2'] = build_style(
+                'Table.H2', 'table-cell', [
+                TableCellProperties(verticalalign='middle',
+                                    backgroundcolor='#777777',
+                                    bordertop='0.0007in solid #000000',
+                                    borderbottom='0.0007in solid #000000',
+                                    borderright='0.0007in solid #000000'),
+        ])
+        a.addElement(self.auto_styles['Table.H2'])
 
         self.styles['Table Heading'] = build_style(
                 'Table Heading', 'paragraph', [
@@ -187,8 +198,23 @@ class Report:
         ])
         s.addElement(self.styles['Table Heading'])
 
-        self.auto_styles['Table.DC'] = build_style(
-                'Table.DC', 'paragraph', [
+        self.auto_styles['Table.D1'] = build_style(
+                'Table.D1', 'table-cell', [
+                TableCellProperties(borderbottom='0.0007in solid #000000',
+                                    borderleft='0.0007in solid #000000',
+                                    borderright='0.0007in solid #000000'),
+        ])
+        a.addElement(self.auto_styles['Table.D1'])
+
+        self.auto_styles['Table.D2'] = build_style(
+                'Table.D2', 'table-cell', [
+                TableCellProperties(borderbottom='0.0007in solid #000000',
+                                    borderright='0.0007in solid #000000'),
+        ])
+        a.addElement(self.auto_styles['Table.D2'])
+
+        self.auto_styles['P.DC'] = build_style(
+                'P.DC', 'paragraph', [
                 TextProperties(fontsize='14pt',
                                fontfamily='Cordia New',
                                language='en',
@@ -198,11 +224,12 @@ class Report:
                                languagecomplex='th',
                                countrycomplex='TH'),
                 ParagraphProperties(textalign='center'),
+                TableCellProperties(border='0.0007in solid #000000'),
         ])
-        a.addElement(self.auto_styles['Table.DC'])
+        a.addElement(self.auto_styles['P.DC'])
 
-        self.auto_styles['Table.DL'] = build_style(
-                'Table.DL', 'paragraph', [
+        self.auto_styles['P.DL'] = build_style(
+                'P.DL', 'paragraph', [
                 TextProperties(fontsize='14pt',
                                fontfamily='Cordia New',
                                language='en',
@@ -212,8 +239,9 @@ class Report:
                                languagecomplex='th',
                                countrycomplex='TH'),
                 ParagraphProperties(textalign='left'),
+                TableCellProperties(border='0.0007in solid #000000'),
         ])
-        a.addElement(self.auto_styles['Table.DL'])
+        a.addElement(self.auto_styles['P.DL'])
 
     def insert_doc(self, filename, keywords):
         doc = opendocument.load(filename)
@@ -284,8 +312,14 @@ class Report:
         tab.addElement(t)
         tr = table.TableRow()
         t.addElement(tr)
+        first = True
         for text in headers:
-            tc = table.TableCell(valuetype='string', stylename=self.auto_styles['Table.HC'])
+            if first:
+                style = self.auto_styles['Table.H1']
+                first = False
+            else:
+                style = self.auto_styles['Table.H2']
+            tc = table.TableCell(valuetype='string', stylename=style)
             tr.addElement(tc)
             tc.addElement(P(text=text, stylename=self.styles['Table Heading']))
 
@@ -298,13 +332,17 @@ class Report:
             for c in columns:
                 val = str(row[c]).strip()
                 if first:
-                    style = self.auto_styles['Table.DL']
+                    tstyle = self.auto_styles['Table.D1']
+                    pstyle = self.auto_styles['P.DL']
                     first = False
                 else:
-                    style = self.auto_styles['Table.DC']
-                tc = table.TableCell(valuetype='string', value=val)
+                    tstyle = self.auto_styles['Table.D2']
+                    pstyle = self.auto_styles['P.DC']
+                tc = table.TableCell(valuetype='string',
+                                     stylename=tstyle,
+                                     value=val)
                 tr.addElement(tc)
-                tc.addElement(P(text=val, stylename=style))
+                tc.addElement(P(text=val, stylename=pstyle))
 
     def generate_range(self, start, end, report_name):
         timespan, start, end = get_param_range(start, end)
