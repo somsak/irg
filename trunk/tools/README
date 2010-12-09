@@ -1,14 +1,20 @@
 To use irg-genreport
 
 Installation
-  1. Install odfpy from http://odfpy.forge.osor.eu/
-  2. Put the environment variable PYTHONPATH to the path where irg/binding/python 
-       export PYTHONPATH=(irg-path)/binding/python
-  3. Make sure your system locale setting had the specific locale needed by report
+  1. Install odfpy for python from http://odfpy.forge.osor.eu/
+  
+  2. Make sure your system locale setting had the specific locale needed by report
      To check this, run "locale -a"
      To add specific locale, Go to the file /var/lib/locales/supported.d/local
      and add the locale, eg. "th_TH.UTF-8 UTF-8" . Save the file and run "dpkg-reconfigure locales"
+  
+  3. Put the environment variable PYTHONPATH to the path where irg/binding/python 
+       export PYTHONPATH=<path-to-irg>/binding/python
+  
+  4. Set path to this program by adding to $PATH variable
+       export PATH=$PATH:<path-to-irg>/tools/
 
+ 
 Running
   irg-report need at least 4 parameters
   -u - cacti username
@@ -16,5 +22,6 @@ Running
   -r - template name saved by repoti
   -cacti URL provided without switch
 
-Example 
-  irg-genreport -u admin -p password -r MonthlyReport http://thairath.co.th/cacti/
+Examples
+    irg-genreport -u admin -p password -r MonthlyReport http://thairath.co.th/cacti/
+    irg-genreport -u admin -p vbogmiofN --range=20101108-20101208 -r MonthlyReport http://thairath.co.th/cacti/ --header=header_thairath2.odt --footer=footer_thairath2.odt -v -o new.odt  
