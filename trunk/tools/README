@@ -24,4 +24,4 @@ Running
 
 Examples
     irg-genreport -u admin -p password -r MonthlyReport http://thairath.co.th/cacti/
-    irg-genreport -u admin -p vbogmiofN --range=20101108-20101208 -r MonthlyReport http://thairath.co.th/cacti/ --header=header_thairath2.odt --footer=footer_thairath2.odt -v -o new.odt  
+    irg-genreport -u admin -p password --range=20101108-20101208 -r MonthlyReport http://thairath.co.th/cacti/ --header=header_thairath2.odt --footer=footer_thairath2.odt -v -o new.odt  
