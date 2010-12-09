@@ -3,7 +3,7 @@ irg (Inox Report Generator)
 
 The project contain 2 components
   1. repoti - A cacti plugin used to generate report.
-  2. irg-genreport - This program accept cacti URL on cacti server with repoti to generate report as an OpenOffice Document.
+  2. irg-genreport - This program accept cacti URL on cacti server with repoti to generate a report in OpenOffice Document format.
 
 Installation and Usage is provided in README file in component directory.
 
