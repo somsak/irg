@@ -1,6 +1,6 @@
 Prerequisite
-Working Cacti patched with Plugin Architecture:
-http://mirror.cactiusers.org/downloads/plugins/cacti-plugin-0.8.7e-PA-v2.5.zip
+Working Cacti patched with Plugin Architecture: - http://mirror.cactiusers.org/downloads/plugins/cacti-plugin-0.8.7e-PA-v2.5.zip
+PHP with mod_json (can be installed via PECL) 
 
 Installation
     1. Extract cacti-plugin-0.8.7e-PA-v2.5.zip to cacti/
