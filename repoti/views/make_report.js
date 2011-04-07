@@ -1,9 +1,11 @@
+var report = new Report();
+var previewGraphs = new Array();
+var templates = Report.getReportTemplates();
+var dateFormat = 'yy/mm/dd';
+
+var all_graph = new Array();
 var rras = RRA.getRRAs();
 var hosts = Host.getHosts();
-var templates = Report.getReportTemplates();
-
-var previewGraphs = new Array();
-var report = new Report();
 
 make_report = {};
 make_report.init = function() {
@@ -16,7 +18,6 @@ make_report.init = function() {
     $("#report-end-date").bind("change", function(e){
             make_report.endDateOnchange($(this).val());
         });
-    var dateFormat = 'yy/mm/dd';
     $("#report-end-date").datepicker({
             changeMonth: true,
             changeYear: true,
@@ -34,25 +35,23 @@ make_report.init = function() {
     $("#report-end-prime-time").bind("change", function(e){
             make_report.endPrimeTimeOnchange($(this).val());
         });
+    $("#report-update").bind("click", function(e){
+    		e.preventDefault();
+        	make_report.update();
+    	});    
     $("#collapse-expend-host-graph").bind("click", function(e){
             $(".graph-list").toggle();
-    });
-    $("#make-report").bind("click", function(e) {
-            make_report.make();
-        });
-
+    	});
+    
     make_report.updateConf();
-    make_report.updatePreview();
 
     $("#graph-select").append(Graph.HTML.li_select(hosts));
     $("#graph-select").sortable({
             stop: function() {
-                make_report.updatePreview();
             }
         });
     $(".graph-list").sortable({
             stop: function() {
-                make_report.updatePreview();
             }
         });
 
@@ -61,7 +60,6 @@ make_report.init = function() {
         });
 
     $(".graph-list input").bind("click", function() {
-            make_report.updatePreview();
         });
 
     $("#save-as-template").bind("click", function() {
@@ -86,6 +84,70 @@ make_report.init = function() {
         });
 }
 
+
+
+make_report.rraTypeOnchange = function(rraTypeId) {
+	report.setRRAType(rras[rraTypeId]);
+	
+	var rra = report.getRRAType();
+
+	$("#conf-rra-type-id").html(rra.getName());
+    if(rra.getTimespan() < 86400){
+        $("#report-end-time").attr("disabled", "");
+    } else {
+        $("#report-end-time").attr("disabled", "disabled").val("00:00");
+        $("#conf-end-time").html("00:00");
+    }
+}
+
+make_report.endDateOnchange = function(date) {
+    report.setEndDate(date);
+    $("#conf-end-date").html(report.getEndDate());
+}
+
+make_report.endTimeOnchange = function(time) {
+    report.setEndTime(time);
+    $("#conf-end-time").html(report.getEndTime());
+}
+
+make_report.beginPrimeTimeOnchange = function(time) {
+    report.setBeginPrimeTime(time);
+    $("#conf-begin-prime-time").html(report.getBeginPrimeTime());
+}
+
+make_report.endPrimeTimeOnchange = function(time) {
+    report.setEndPrimeTime(time);
+    $("#conf-end-prime-time").html(report.getEndPrimeTime());
+}
+
+make_report.updateConf = function() {
+    make_report.rraTypeOnchange($("#report-rra-type-id").val());
+    make_report.endDateOnchange($("#report-end-date").val());
+    make_report.endTimeOnchange($("#report-end-time").val());
+    make_report.beginPrimeTimeOnchange($("#report-begin-prime-time").val());
+    make_report.endPrimeTimeOnchange($("#report-end-prime-time").val());
+}
+
+make_report.update = function() {
+    var checked = $(".graph-list :checked");
+        $.each(checked, function(i, e) {
+        var id = $(e).val();
+        for(h in hosts) {
+        	hGraphs = hosts[h].getGraphs();
+        	for(g in hGraphs) {
+        		if(hGraphs[g].getGraphId() == id) {
+        			previewGraphs.push(hGraphs[g]);
+        		}
+        	}
+        }
+    });
+
+    report.setGraphs(previewGraphs);
+    $("#preview").html("<div>" + Report.HTML.li_preview(report) + "</div>");
+
+    previewGraphs = new Array();
+}
+
 make_report.loadTemplate = function() {
     var templateId = $("#template-id").val();
     var template = templates[templateId];
@@ -105,67 +167,7 @@ make_report.loadTemplate = function() {
     $("#report-end-prime-time").val(template.getEndPrimeTime());
 
     previewGraphs = graphs;
-    make_report.updatePreview();
-}
-
-make_report.rraTypeOnchange = function(rraTypeId) {
-    report.setRRAType(rras[rraTypeId]);
-    var rra = report.getRRAType();
-    $("#conf-rra-type-id").html(rra.getName());
-
-    if(rra.getTimespan() < 86400){
-        $("#report-end-time").attr("disabled", "");
-    } else {
-        $("#report-end-time").attr("disabled", "disabled").val("00:00");
-        $("#conf-end-time").html("00:00");
-    }
-
-    make_report.updatePreview();
-}
-
-make_report.endDateOnchange = function(date) {
-    report.setEndDate(date);
-    $("#conf-end-date").html(report.getEndDate());
-    make_report.updatePreview();
-}
-
-make_report.endTimeOnchange = function(time) {
-    report.setEndTime(time);
-    $("#conf-end-time").html(report.getEndTime());
-    make_report.updatePreview();
-}
-
-make_report.beginPrimeTimeOnchange = function(time) {
-    report.setBeginPrimeTime(time);
-    $("#conf-begin-prime-time").html(report.getBeginPrimeTime());
-    make_report.updatePreview();
-}
-
-make_report.endPrimeTimeOnchange = function(time) {
-    report.setEndPrimeTime(time);
-    $("#conf-end-prime-time").html(report.getEndPrimeTime());
-    make_report.updatePreview();
-}
-
-make_report.updateConf = function() {
-    make_report.rraTypeOnchange($("#report-rra-type-id").val());
-    make_report.endDateOnchange($("#report-end-date").val());
-    make_report.endTimeOnchange($("#report-end-time").val());
-    make_report.beginPrimeTimeOnchange($("#report-begin-prime-time").val());
-    make_report.endPrimeTimeOnchange($("#report-end-prime-time").val());
-}
-
-make_report.updatePreview = function() {
-    var checked = $(".graph-list :checked");
-        $.each(checked, function(i, e) {
-        var id = $(e).val();
-        previewGraphs.push(Graph.getGraphById(id));
-    });
-
-    report.setGraphs(previewGraphs);
-    $("#preview").html("<div>" + Report.HTML.li_preview(report) + "</div>");
-
-    previewGraphs = new Array();
+    make_report.update();
 }
 
 make_report.toggle = function() {
@@ -195,18 +197,6 @@ make_report.toggle = function() {
                 });
         }
     });
-}
-
-make_report.make = function() {
-    var html = '<head><title>Report</title><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /></head>';
-    html += $("#preview :first").html();
-    var report =  window.open();
-
-    report.document.open();
-    report.document.write(html);
-    report.document.close();
-
-    return false;
 }
 
 $(document).ready(function() {

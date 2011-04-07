@@ -1,46 +1,41 @@
 <?php
 class GraphController {
     function getGraphs() {
-        $sql = "SELECT `graph_local`.`id`, `graph_local`.`host_id`,
-        `graph_templates_graph`.`title_cache`, `graph_templates_graph`.`graph_template_id` AS `template_id`,
-        `graph_templates_graph`.`base_value`
-        FROM `graph_templates_graph`
-        JOIN `graph_local`
-        ON `graph_templates_graph`.`local_graph_id` = `graph_local`.`id`";
-
+        $sql = "SELECT `graph_local`.`id`, `graph_local`.`host_id`, `graph_templates_graph`.`title_cache`, `graph_templates_graph`.`graph_template_id` "
+        . "AS `template_id`, `graph_templates_graph`.`base_value` "
+        . "FROM `graph_templates_graph` "
+        . "JOIN `graph_local` ON `graph_templates_graph`.`local_graph_id` = `graph_local`.`id`";
         $graphs = db_fetch_assoc($sql);
+        
         return $graphs;
     }
 
     function getTemplate($id) {
         $sql = "SELECT * FROM `graph_templates` WHERE `id` = {$id}";
-
         $template = db_fetch_row($sql);
+        
         return $template;
     }
 
     function getGraphById($id) {
-        $sql = "SELECT `graph_local`.`id`, `graph_local`.`host_id`,
-        `graph_templates_graph`.`title_cache`, `graph_templates_graph`.`graph_template_id` AS `template_id`,
-        `graph_templates_graph`.`base_value`
-        FROM `graph_templates_graph`
-        JOIN `graph_local`
-        ON `graph_templates_graph`.`local_graph_id` = `graph_local`.`id`
-        WHERE `graph_local`.`id` = {$id}";
-
+        $sql = "SELECT `graph_local`.`id`, `graph_local`.`host_id`, `graph_templates_graph`.`title_cache`, `graph_templates_graph`.`graph_template_id` "
+        . "AS `template_id`, `graph_templates_graph`.`base_value`, `graph_templates`.`name` AS `template_name` "
+        . "FROM `graph_templates_graph` "
+		. "JOIN `graph_local` ON `graph_templates_graph`.`local_graph_id` = `graph_local`.`id` "
+		. "JOIN `graph_templates` ON `graph_templates`.`id` = `graph_templates_graph`.`graph_template_id` "
+        . "WHERE `graph_local`.`id` = {$id}";
         $graphs = db_fetch_row($sql);
+        
         return $graphs;
     }
 
     function getGraphByHostId($id) {
-        $sql = "SELECT `graph_local`.`id`, `graph_local`.`host_id`,
-        `graph_templates_graph`.`title_cache`
-        FROM `graph_templates_graph`
-        JOIN `graph_local`
-        ON `graph_templates_graph`.`local_graph_id` = `graph_local`.`id`
-        WHERE `graph_local`.`host_id` = {$id}";
-
+        $sql = "SELECT `graph_local`.`id`, `graph_local`.`host_id`, `graph_templates_graph`.`title_cache` "
+        . "FROM `graph_templates_graph` "
+        . "JOIN `graph_local` ON `graph_templates_graph`.`local_graph_id` = `graph_local`.`id` "
+        . "WHERE `graph_local`.`host_id` = {$id}";
         $graphs = db_fetch_assoc($sql);
+        
         return $graphs;
     }
 
@@ -78,8 +73,7 @@ class GraphController {
         return sprintf("%02.02f %s", $value, $n);
     }
 
-    function getGraphStat($graphID, $rraTypeID, $timespan, $graphStart, $graphEnd,
-    $beginPrime, $endPrime) {
+    function getGraphStat($graphID, $rraTypeID, $timespan, $graphStart, $graphEnd, $beginPrime, $endPrime) {
         include_once('./lib/rrd.php');
         include_once('./plugins/repoti/models/utils.php');
 
@@ -109,13 +103,6 @@ class GraphController {
             $graphNote[$currCol]['p_max'] = (float)-1.8e307;
             $graphNote[$currCol]['p_min'] = (float)1.8e307;;
             $graphNote[$currCol]['p_count'] = 0;
-
-            /*
-            $graphNote[$currCol]['e_sum'] = 0;
-            $graphNote[$currCol]['e_min'] = (float)-1.8e307;;
-            $graphNote[$currCol]['e_max'] = (float)1.8e307;;
-            $graphNote[$currCol]['e_count'] = 0;
-            */
 
             $graphNote[$currCol]['pre_sum'] = 0;
             $graphNote[$currCol]['pre_max'] = (float)-1.8e307;
@@ -246,17 +233,20 @@ class GraphController {
             ? 0 : $this->convertToSIUnit(($graphNote[$currCol]['pre_p_sum'] / $graphNote[$currCol]['pre_p_count']), $base_value);
             $cols[$i-1]['pre_p_max'] = $this->convertToSIUnit($graphNote[$currCol]['pre_p_max'], $base_value);
             $cols[$i-1]['pre_p_min'] = $this->convertToSIUnit($graphNote[$currCol]['pre_p_min'], $base_value);
-
-            /*
-            $cols[$i-1]['e_avg'] = $graphNote[$currCol]['e_count'] ==
-            0 ? 0 : $this->convertToSIUnit(($graphNote[$currCol]['e_sum'] / $graphNote[$currCol]['e_count']), $base_value);
-            $cols[$i-1]['e_max'] = $this->convertToSIUnit((float)$graphNote[$currCol]['e_max'], $base_value);
-            $cols[$i-1]['e_min'] = $this->convertToSIUnit((float)$graphNote[$currCol]['e_min'], $base_value);
-            */
         }
-
         $returnData['cols'] = $cols;
+        
         return $returnData;
     }
+    
+    function getGraphStats($graphIDs, $rraTypeID, $timespan, $graphStart, $graphEnd, $beginPrime, $endPrime) {
+    	$returnDatum = array();
+    	
+    	foreach($graphIDs as $graphID) {
+    		array_push($returnDatum, $this->getGraphStat($graphID, $rraTypeID, $timespan, $graphStart, $graphEnd, $beginPrime, $endPrime));	
+    	}
+    	
+    	return $returnDatum;
+    }    
 }
 ?>

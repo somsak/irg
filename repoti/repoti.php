@@ -62,9 +62,20 @@ switch ($c) {
                 $beginPrime = $_GET['beginPrime'];
                 $endPrime = $_GET['endPrime'];
 
-                echo json_encode($g->getGraphStat($graphId, $rraTypeId, $timespan,
-                $graphStart, $graphEnd, $beginPrime, $endPrime));
+                echo json_encode($g->getGraphStat($graphId, $rraTypeId, $timespan, $graphStart, $graphEnd, $beginPrime, $endPrime));
                 break;
+                
+            case 'getstats':
+                $graphIds = explode(",", $_GET['graphIds']);
+                $rraTypeId = $_GET['rraTypeId'];
+                $timespan = $_GET['timespan'];
+                $graphStart = $_GET['graphStart'];
+                $graphEnd = $_GET['graphEnd'];
+                $beginPrime = $_GET['beginPrime'];
+                $endPrime = $_GET['endPrime'];
+
+                echo json_encode($g->getGraphStats($graphIds, $rraTypeId, $timespan, $graphStart, $graphEnd, $beginPrime, $endPrime));
+                break;                
 
             case 'getTemplate':
                 echo json_encode($g->getTemplate($_GET['templateId']));

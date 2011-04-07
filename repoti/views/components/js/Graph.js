@@ -4,6 +4,7 @@ function Graph(graph) {
     var hostId = graph.host_id;
     var title = graph.title_cache;
     var templateId = graph.template_id;
+    var templateName = graph.template_name;
 
     this.getGraphId = function() {
         return id;
@@ -20,6 +21,10 @@ function Graph(graph) {
     this.getTemplateId = function() {
         return templateId;
     }
+    
+    this.getTemplateName = function() {
+        return templateName;
+    }    
 
     this.getImageUrl = function(rraType, graphStart, graphEnd) {
         return "/cacti/graph_image.php?local_graph_id=" + id + "&view_type=tree"
@@ -99,7 +104,7 @@ Graph.HTML.li_select = function(hosts) {
     for(h in hosts) {
         var host = hosts[h];
         html += "<li>";
-        html += "<div class='host-desc'>" + host.getDescription() + "</div><div class='drag'>&uarr;&darr</div>";
+        html += "<div class='host-desc'>" + host.getDescription() + "</div><div class='drag'>&uarr;&darr;</div>";
         html += "<ul class='graph-list'>";
         var graphs = hosts[h].getGraphs();
         for(g in graphs) {
@@ -117,17 +122,23 @@ Graph.HTML.li_select = function(hosts) {
     return html;
 }
 
-Graph.HTML.getGraphStatTables = function(graph, report) {
+Graph.HTML.getGraphStatsTables = function(report) {
+	var html = "";
     var rraType = report.getRRAType();
-    var html = "";
+    
+    var graphIds = new Array();
+    for(g in graphs) {
+    	graphIds.push(graphs[g].getGraphId());
+    }
+    
     $.ajax({
         type: "GET",
         async: false,
         url: "/cacti/plugins/repoti/repoti.php",
         data:{
             c: "graphs",
-            a: "getstat",
-            graphId : graph.getGraphId(),
+            a: "getstats",
+            graphIds : graphIds.join(),
             rraTypeId : report.getRRAType().getRRAId(),
             timespan: rraType.getTimespan(),
             graphStart : report.getGraphBeginTimestamp(),
@@ -135,16 +146,43 @@ Graph.HTML.getGraphStatTables = function(graph, report) {
             beginPrime : report.getBeginPrimeTime(),
             endPrime : report.getEndPrimeTime(),
         },
-        success: function(data){
+        success: function(data) {
+        	var beginDate = $.datepicker.parseDate('yy/mm/dd', report.getBeginDate());
+        	var endDate = $.datepicker.parseDate('yy/mm/dd', report.getEndDate());         
+        	
+            var graphStart = report.getGraphBeginTimestamp();
+            var graphEnd = report.getGraphEndTimestamp();
+            
             html = "";
-            html += "<table class='graph-stat'>";
-            html += "<tr><th>value</th><th>Average</th><th>Peak</th><th>Prime time average</th>";
-            html += "<th>Previous Average</th><th>Previous Peak</th><th>Previous Prime time average</th></tr>";
-            for(var i = 0; i < data.cols.length; i++){
-                html += "<tr><td>" + data.cols[i].title + "</td><td>" + data.cols[i].avg + "</td><td>" +data.cols[i].max + "</td><td>" + data.cols[i].p_avg + "</td>";
-                html += "<td>" + data.cols[i].pre_avg + "</td><td>" + data.cols[i].pre_max + "</td><td>" +data.cols[i].pre_p_avg + "</td></tr>";
+            for(d in data) {
+            	var curData = data[d];
+            	
+            	for(g in graphs) {
+            		if(graphs[g].getGraphId() == curData.meta.graph_id) {
+            			for(h in hosts) {
+            				if(hosts[h].getHostId() == graphs[g].getHostId()) {
+            					curHost = hosts[h];
+            				}
+            			}
+		            	
+		                html += "<h3>" + graphs[g].getTitle() + "</h3>";
+		                html += "<img src='" + graphs[g].getImageUrl(report.getRRAType(), graphStart, graphEnd) + "'/>";            	
+			            
+		                html += "<table class='graph-stat'>";
+			            html += "<tr><th>Value</th><th>Average</th><th>Peak</th><th>Prime time average</th>";
+			            html += "<th>Previous Average</th><th>Previous Peak</th><th>Previous Prime time average</th></tr>";
+			            for(var i = 0; i < curData.cols.length; i++){
+			                html += "<tr><td>" + curData.cols[i].title + "</td><td>" + curData.cols[i].avg + "</td><td>" + curData.cols[i].max + "</td><td>" + curData.cols[i].p_avg + "</td>";
+			                html += "<td>" + curData.cols[i].pre_avg + "</td><td>" + curData.cols[i].pre_max + "</td><td>" + curData.cols[i].pre_p_avg + "</td></tr>";
+			            }
+			            html += "</table>";
+			            
+			            html += "<p id=\"" + graphs[g].getGraphId() + "\" rows=\"10\" cols=\"60\">The " + graphs[g].getTemplateName() + " of " + curHost.getDescription();
+			            html += " from " + $.datepicker.formatDate('d MM yy', beginDate) + " to " + $.datepicker.formatDate('d MM yy', endDate) + "</p>";
+			            html += "<hr>";	   
+            		}
+            	}
             }
-            html += "</table>";
         },
         dataType: "json"
     });
