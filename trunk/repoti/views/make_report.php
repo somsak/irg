@@ -87,6 +87,7 @@
                             <th class="repoti"><span>End prime time:</span></th>
                             <td class="repoti"><input id="report-end-prime-time" name="report-end-prime-time" type="text" value="12:00"/><span style="padding-left: 3px;">format H:i</span></td>
                         </tr>
+                        <tr><th></th><td><button id="report-update">Update</button></td></tr>
                     </table>
                 </form>
                 </div>
@@ -101,7 +102,6 @@
     </div>
     <div style="position: fixed; top: 0; right: 0;z-index: 101;" >
         <button onclick="make_report.toggle(); return false;">toggle</button>
-        <button id="make-report">Make</button>
     </div>
 </div>
 </body>

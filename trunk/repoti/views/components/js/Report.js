@@ -189,27 +189,9 @@ Report.deleteReportTemplate = function(id) {
 
 Report.HTML = {};
 Report.HTML.li_preview = function(report) {
-var graphs = report.getGraphs();
-    var graphStart = report.getGraphBeginTimestamp();
-    var graphEnd = report.getGraphEndTimestamp();
-    var html = "";
-
-    for(g in graphs) {
-        var graph = graphs[g];
-        var host = Host.getHostById(graph.getHostId());
-        var header = graph.getTitle();
-        var beginDate = $.datepicker.parseDate('yy/mm/dd', report.getBeginDate());
-        var endDate = $.datepicker.parseDate('yy/mm/dd', report.getEndDate());
-
-        html += "<h3>" + graph.getTitle() + "</h3>";
-        html += "<img src='" + graph.getImageUrl(report.getRRAType(), graphStart, graphEnd) + "'/>";
-        html += Graph.HTML.getGraphStatTables(graph, report);
-        html += "<p id=\"" + graph.getGraphId() + "\" rows=\"10\" cols=\"60\">The " + Graph.getTemplate(graph.getTemplateId()) + " of " + host.getDescription();
-        html += " from " + $.datepicker.formatDate('d MM yy', beginDate) + " to " + $.datepicker.formatDate('d MM yy', endDate) + "</p>";
-        html += "<hr>";
-    }
-
-    return html;
+	graphs = report.getGraphs();
+	
+    return Graph.HTML.getGraphStatsTables(report);
 }
 
 Report.HTML.template_options = function(templates) {

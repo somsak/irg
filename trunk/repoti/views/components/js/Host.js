@@ -10,15 +10,15 @@ function Host(host){
         return graphs;
     };
 
-    this.getHostId = function(){
+    this.getHostId = function() {
         return id;
     }
 
-    this.getHostName = function(){
+    this.getHostName = function() {
         return hostname;
     }
 
-    this.getDescription = function(){
+    this.getDescription = function() {
         return description;
     }
 }
@@ -38,6 +38,7 @@ Host.getHosts = function(){
             for(d in data){
                 hosts[data[d].id] = new Host(data[d]);
             }
+            hosts.splice(0, 1);
         },
         dataType: "json"
     });
