@@ -1,7 +1,6 @@
 <?php
 chdir('../../../');
 require("include/auth.php");
-//include("top_graph_header.php");
 include('navigator.php');
 ?>
 <link type="text/css" href="../css/humanity/jquery-ui-1.7.2.custom.css" rel="Stylesheet" />

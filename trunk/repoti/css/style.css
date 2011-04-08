@@ -134,6 +134,8 @@
 .col-ex-ul {
     position: absolute;
     right: 0;
+    
+    cursor: pointer;
 
     list-style: none;
     padding: 0;
