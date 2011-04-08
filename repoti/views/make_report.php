@@ -49,14 +49,12 @@
                 </div>
             </div>
             <div id="host-and-graph" class="hide-item">
-            <div class="h3-bg-1"><h3>Host and Graph</h3></div>
-            <div class="content-2">
-                <div id="collapse-expend-host-graph" class="col-ex-ul">Collapse / Expand</div><br>
-                <div>
-                    <ul id="graph-select">
-                    </ul>
-                </div>
-            </div>
+	            <div class="h3-bg-1"><h3>Host and Graph</h3></div>
+	            <div class="content-2">
+	                <div id="collapse-expend-host-graph" class="col-ex-ul">Collapse / Expand</div><br>
+	                <div><ul id="graph-select"></ul></div>
+	                <button id="report-update">Update</button>
+	            </div>
             </div>
         </div>
     </div>
@@ -87,7 +85,6 @@
                             <th class="repoti"><span>End prime time:</span></th>
                             <td class="repoti"><input id="report-end-prime-time" name="report-end-prime-time" type="text" value="12:00"/><span style="padding-left: 3px;">format H:i</span></td>
                         </tr>
-                        <tr><th></th><td><button id="report-update">Update</button></td></tr>
                     </table>
                 </form>
                 </div>

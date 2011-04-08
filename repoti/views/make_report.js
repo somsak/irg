@@ -78,11 +78,13 @@ make_report.init = function() {
         });
 
     $("#delete-template").bind("click", function() {
-            Report.deleteReportTemplate($("#template-id").val());
-
-            $("#template-id *").remove()
-            templates = Report.getReportTemplates();
-            $("#template-id").append(Report.HTML.template_options(templates));
+	    	if(confirm("ลบไหม?")) {
+	            Report.deleteReportTemplate($("#template-id").val());
+	
+	            $("#template-id *").remove()
+	            templates = Report.getReportTemplates();
+	            $("#template-id").append(Report.HTML.template_options(templates));
+	    	}
         });
 }
 
