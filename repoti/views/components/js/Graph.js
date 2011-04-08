@@ -69,7 +69,9 @@ Graph.getGraphById = function(graphId) {
             graphId: graphId,
         },
         success: function(data){
-            graph = new Graph(data);
+        	if(data != null) {
+        		graph = new Graph(data);
+        	}
         },
         dataType: "json",
     });
@@ -125,11 +127,21 @@ Graph.HTML.li_select = function(hosts) {
 Graph.HTML.getGraphStatsTables = function(report) {
 	var html = "";
     var rraType = report.getRRAType();
+    var graph_missing = false;
     
     var graphIds = new Array();
     for(g in graphs) {
-    	graphIds.push(graphs[g].getGraphId());
+    	if(graphs[g] != undefined) {
+    		graphIds.push(graphs[g].getGraphId());
+    	} else {
+    		graph_missing = true;
+    		delete graphs[g];
+    	}
     }
+    
+    if(graph_missing) {
+    	alert("One or more graphs are missing from template.");
+	}
     
     $.ajax({
         type: "GET",

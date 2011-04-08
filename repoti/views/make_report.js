@@ -64,9 +64,11 @@ make_report.init = function() {
 
     $("#save-as-template").bind("click", function() {
             report.setName($("#template-name").val());
+            make_report.update();
             Report.saveAsTemplate(report);
 
             $("#template-id *").remove()
+
             templates = Report.getReportTemplates();
             $("#template-id").append(Report.HTML.template_options(templates));
         });
@@ -156,7 +158,7 @@ make_report.loadTemplate = function() {
 
     var checked = $(".graph-list :checked");
         $.each(checked, function(i, e) {
-        var id = $(e).attr("checked", "");
+        	var id = $(e).attr("checked", "");
     });
 
     $("#report-rra-type-id").val(templateRRA.getRRAId());
