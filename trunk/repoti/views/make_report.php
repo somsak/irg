@@ -33,7 +33,7 @@
             <div>
                 <div id="more-action-menu" class="hide-item">
                     <div class="h3-bg-1"><h3>Templates</h3></div>
-                    <div style="padding: 5px; text-align: left;">
+                    <div style="padding: 3px; text-align: left;">
                         <select id="template-id" style="width: 90%;"></select>
                         <table>
                             <tr>
@@ -42,24 +42,12 @@
                             </tr>
                         </table>
                     </div>
-                    <div style="padding: 5px; text-align: left;">
+                    <div style="padding: 3px; text-align: left;">
                         <span>name: </span><input id="template-name" type="text" style="width: 90%;"/><br>
                     </div>
                     <button id="save-as-template" >save as template</button>
                 </div>
             </div>
-            <div id="host-and-graph" class="hide-item">
-	            <div class="h3-bg-1"><h3>Host and Graph</h3></div>
-	            <div class="content-2">
-	                <div id="collapse-expend-host-graph" class="col-ex-ul">Collapse / Expand</div><br>
-	                <div><ul id="graph-select"></ul></div>
-	                <button id="report-update">Update</button>
-	            </div>
-            </div>
-        </div>
-    </div>
-    <div id="repoti-right" class="ui-corner-all">
-        <div id="main">
             <div class="h3-bg-1 hide-item"><h3>Configure the report</h3></div>
             <div class="content-1 hide-item">
                 <div>
@@ -88,7 +76,19 @@
                     </table>
                 </form>
                 </div>
+            </div>            
+            <div id="host-and-graph" class="hide-item">
+	            <div class="h3-bg-1"><h3>Host and Graph</h3></div>
+	            <div class="content-2">
+	                <div id="collapse-expend-host-graph" class="col-ex-ul">Collapse / Expand</div><br>
+	                <div><ul id="graph-select"></ul></div>
+	                <button id="report-update">Update</button>
+	            </div>
             </div>
+        </div>
+    </div>
+    <div id="repoti-right" class="ui-corner-all">
+        <div id="main">
             <div class="h3-bg-1"><h3>Preview & Edit</h3>
             <div class="content-2">
                 <div>

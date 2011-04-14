@@ -59,9 +59,6 @@ make_report.init = function() {
             $(this).find("~ ul").toggle();
         });
 
-    $(".graph-list input").bind("click", function() {
-        });
-
     $("#save-as-template").bind("click", function() {
             report.setName($("#template-name").val());
             make_report.update();
@@ -87,8 +84,6 @@ make_report.init = function() {
 	    	}
         });
 }
-
-
 
 make_report.rraTypeOnchange = function(rraTypeId) {
 	report.setRRAType(rras[rraTypeId]);
@@ -134,16 +129,18 @@ make_report.updateConf = function() {
 
 make_report.update = function() {
     var checked = $(".graph-list :checked");
-        $.each(checked, function(i, e) {
-        var id = $(e).val();
-        for(h in hosts) {
-        	hGraphs = hosts[h].getGraphs();
-        	for(g in hGraphs) {
-        		if(hGraphs[g].getGraphId() == id) {
-        			previewGraphs.push(hGraphs[g]);
-        		}
-        	}
-        }
+    
+    $.each(checked, function(i, e) {
+    	var id = $(e).val();
+    	for(h in hosts) {
+    		hGraphs = hosts[h].getGraphs();
+    		
+    		for(g in hGraphs) {
+    			if(hGraphs[g].getGraphId() == id) {
+    				previewGraphs.push(hGraphs[g]);
+    			}
+    		}
+    	}
     });
 
     report.setGraphs(previewGraphs);
@@ -156,12 +153,23 @@ make_report.loadTemplate = function() {
     var templateId = $("#template-id").val();
     var template = templates[templateId];
     var templateRRA = template.getRRAType();
-    var graphs = template.getGraphs();
+    var templateGraphs = template.getGraphs();
+    
+    var checked = $(".graph-list input[type=checkbox]:checked");
+	$.each(checked, function(i, e) {
+		var id = $(e).attr("checked", "");
+	});    
+    
+    for(g in templateGraphs) {
+    	if(templateGraphs[g] != undefined) { 
+    		$(".graph-list input[type=checkbox]").each(function() {
+    			if($(this).val() == templateGraphs[g].getGraphId()) {
+    				$(this).attr("checked", "checked");
+    			}
+    		})
+    	}
+    }
 
-    var checked = $(".graph-list :checked");
-        $.each(checked, function(i, e) {
-        	var id = $(e).attr("checked", "");
-    });
 
     $("#report-rra-type-id").val(templateRRA.getRRAId());
     make_report.rraTypeOnchange(templateRRA.getRRAId());
@@ -170,7 +178,6 @@ make_report.loadTemplate = function() {
     $("#report-begin-prime-time").val(template.getBeginPrimeTime());
     $("#report-end-prime-time").val(template.getEndPrimeTime());
 
-    previewGraphs = graphs;
     make_report.update();
 }
 
