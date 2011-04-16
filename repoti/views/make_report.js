@@ -155,8 +155,7 @@ make_report.loadTemplate = function() {
     var templateRRA = template.getRRAType();
     var templateGraphs = template.getGraphs();
     
-    var checked = $(".graph-list input[type=checkbox]:checked");
-	$.each(checked, function(i, e) {
+	$.each($(".graph-list input[type=checkbox]:checked"), function(i, e) {
 		var id = $(e).attr("checked", "");
 	});    
     
@@ -167,9 +166,10 @@ make_report.loadTemplate = function() {
     				$(this).attr("checked", "checked");
     			}
     		})
+    	} else {
+    		alert("Graph ID=" + g + " is missing.");
     	}
     }
-
 
     $("#report-rra-type-id").val(templateRRA.getRRAId());
     make_report.rraTypeOnchange(templateRRA.getRRAId());
