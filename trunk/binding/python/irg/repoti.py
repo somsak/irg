@@ -39,13 +39,13 @@ def populate_words(year, month):
     start_time = time.localtime(start)
     end_time = time.localtime(end)
 
-    en_month = time.strftime('%B', start_time)
+    en_month = time.strftime('%B', end_time)
     old = locale.getlocale(locale.LC_ALL)
     locale.setlocale(locale.LC_ALL, 'th_TH.UTF-8')
 
     words = [('%enmonth', en_month),
-             ('%thmonth', time.strftime('%B', start_time).decode('utf-8')),
-             ('%year', time.strftime('%Y', start_time)),
+             ('%thmonth', time.strftime('%B', end_time).decode('utf-8')),
+             ('%year', time.strftime('%Y', end_time)),
              ('%start_date', time.strftime('%d %B %Y', start_time).decode('utf-8')[1:]),
              ('%end_date', time.strftime('%d %B %Y', end_time).decode('utf-8')[1:])]
 
