@@ -360,10 +360,7 @@ class Report:
         h = H(outlinelevel=1, stylename=self.styles['Heading 1'], text='Monthly Report')
         self.doc.text.addElement(h)
 
-        count = 0
         for graph_id in report['graph_ids']:
-            count += 1
-
             self.verbose('generating graph %s' % graph_id)
             stat = self.irg.get_stat(graph_id, report['rratype_id'],
                                      timespan, start, end,
