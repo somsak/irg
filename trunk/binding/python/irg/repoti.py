@@ -274,6 +274,7 @@ class Report:
     def generate_graph(self, stat, image):
         title = stat['meta']['title']
         image_name = 'graph_%s.png' % stat['meta']['graph_id']
+        image_name = '10000000000003230000006DFEEF%04d.png' % int(stat['meta']['graph_id'])
         mime, width, height = get_image_info(image)
         width = width*72/96
         height = height*72/96
@@ -287,7 +288,8 @@ class Report:
                        anchortype='as-char')
         p.addElement(f)
 
-        href = self.doc.addPicture(image_name, content=image)
+        href = self.doc.addPicture('Pictures/'+image_name, content=image,
+                                   mediatype='')
         im = draw.Image(href=href)
         f.addElement(im)
 
