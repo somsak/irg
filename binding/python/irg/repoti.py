@@ -275,6 +275,7 @@ class Report:
         title = stat['meta']['title']
         image_name = 'graph_%s.png' % stat['meta']['graph_id']
         image_name = '10000000000003230000006DFEEF%04d.png' % int(stat['meta']['graph_id'])
+        frame_name = 'graph_%s' % stat['meta']['graph_id']
         mime, width, height = get_image_info(image)
         width = width*72/96
         height = height*72/96
@@ -285,12 +286,12 @@ class Report:
         p = P()
         self.doc.text.addElement(p)
         f = draw.Frame(width='%fpt' % width, height='%fpt' % height,
-                       anchortype='as-char')
+                       anchortype='as-char', name=frame_name)
         p.addElement(f)
 
         href = self.doc.addPicture('Pictures/'+image_name, content=image,
                                    mediatype='')
-        im = draw.Image(href=href)
+        im = draw.Image(href=href, type='simple', actuate='onLoad', show='embed')
         f.addElement(im)
 
     def generate_stat(self, stat):
