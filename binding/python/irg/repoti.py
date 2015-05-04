@@ -75,11 +75,11 @@ class Report:
                                     orphans='2',
                                     widows='2'),
                 TextProperties(fontsize='14pt',
-                               fontfamily='TH SarabunPSK',
+                               fontfamily='TH Sarabun New',
                                language='en',
                                country='US',
                                fontsizecomplex='14pt',
-                               fontfamilycomplex='TH SarabunPSK',
+                               fontfamilycomplex='TH Sarabun New',
                                languagecomplex='th',
                                countrycomplex='TH'),
         ], {'class': 'text'})
@@ -90,11 +90,11 @@ class Report:
                 ParagraphProperties(margintop='0in',
                                     marginbottom='0.0835in'),
                 TextProperties(fontsize='14pt',
-                               fontfamily='TH SarabunPSK',
+                               fontfamily='TH Sarabun New',
                                language='en',
                                country='US',
                                fontsizecomplex='14pt',
-                               fontfamilycomplex='TH SarabunPSK',
+                               fontfamilycomplex='TH Sarabun New',
                                languagecomplex='th',
                                countrycomplex='TH'),
         ], {'parentstylename': 'Standard', 'class': 'text'})
@@ -105,11 +105,11 @@ class Report:
                 ParagraphProperties(textindent='0.5in',
                                     autotextindent='false'),
                 TextProperties(fontsize='14pt',
-                               fontfamily='TH SarabunPSK',
+                               fontfamily='TH Sarabun New',
                                language='en',
                                country='US',
                                fontsizecomplex='14pt',
-                               fontfamilycomplex='TH SarabunPSK',
+                               fontfamilycomplex='TH Sarabun New',
                                languagecomplex='th',
                                countrycomplex='TH'),
         ], {'parentstylename': 'Text_20_body', 'class': 'text'})
@@ -118,12 +118,12 @@ class Report:
         self.styles['Heading 1'] = build_style(
                 'Heading 1', 'paragraph', [
                 TextProperties(fontsize='24pt',
-                               fontfamily='TH SarabunPSK',
+                               fontfamily='TH Sarabun New',
                                fontweight='bold',
                                language='en',
                                country='US',
                                fontsizecomplex='24pt',
-                               fontfamilycomplex='TH SarabunPSK',
+                               fontfamilycomplex='TH Sarabun New',
                                fontweightcomplex='bold',
                                languagecomplex='th',
                                countrycomplex='TH'),
@@ -135,12 +135,12 @@ class Report:
         self.styles['Heading 2'] = build_style(
                 'Heading 2', 'paragraph', [
                 TextProperties(fontsize='20pt',
-                               fontfamily='TH SarabunPSK',
+                               fontfamily='TH Sarabun New',
                                fontweight='bold',
                                language='en',
                                country='US',
                                fontsizecomplex='20pt',
-                               fontfamilycomplex='TH SarabunPSK',
+                               fontfamilycomplex='TH Sarabun New',
                                fontweightcomplex='bold',
                                languagecomplex='th',
                                countrycomplex='TH'),
@@ -151,12 +151,12 @@ class Report:
         self.styles['Heading 3'] = build_style(
                 'Heading 3', 'paragraph', [
                 TextProperties(fontsize='18pt',
-                               fontfamily='TH SarabunPSK',
+                               fontfamily='TH Sarabun New',
                                fontweight='bold',
                                language='en',
                                country='US',
                                fontsizecomplex='18pt',
-                               fontfamilycomplex='TH SarabunPSK',
+                               fontfamilycomplex='TH Sarabun New',
                                fontweightcomplex='bold',
                                languagecomplex='th',
                                countrycomplex='TH'),
@@ -185,12 +185,12 @@ class Report:
         self.styles['Table Heading'] = build_style(
                 'Table Heading', 'paragraph', [
                 TextProperties(fontsize='14pt',
-                               fontfamily='TH SarabunPSK',
+                               fontfamily='TH Sarabun New',
                                fontweight='bold',
                                language='en',
                                country='US',
                                fontsizecomplex='14pt',
-                               fontfamilycomplex='TH SarabunPSK',
+                               fontfamilycomplex='TH Sarabun New',
                                fontweightcomplex='bold',
                                languagecomplex='th',
                                countrycomplex='TH'),
@@ -216,11 +216,11 @@ class Report:
         self.auto_styles['P.DC'] = build_style(
                 'P.DC', 'paragraph', [
                 TextProperties(fontsize='14pt',
-                               fontfamily='TH SarabunPSK',
+                               fontfamily='TH Sarabun New',
                                language='en',
                                country='US',
                                fontsizecomplex='14pt',
-                               fontfamilycomplex='TH SarabunPSK',
+                               fontfamilycomplex='TH Sarabun New',
                                languagecomplex='th',
                                countrycomplex='TH'),
                 ParagraphProperties(textalign='center'),
@@ -231,11 +231,11 @@ class Report:
         self.auto_styles['P.DL'] = build_style(
                 'P.DL', 'paragraph', [
                 TextProperties(fontsize='14pt',
-                               fontfamily='TH SarabunPSK',
+                               fontfamily='TH Sarabun New',
                                language='en',
                                country='US',
                                fontsizecomplex='14pt',
-                               fontfamilycomplex='TH SarabunPSK',
+                               fontfamilycomplex='TH Sarabun New',
                                languagecomplex='th',
                                countrycomplex='TH'),
                 ParagraphProperties(textalign='left'),
@@ -288,8 +288,8 @@ class Report:
                        anchortype='as-char', name=frame_name)
         p.addElement(f)
 
-        href = self.doc.addPicture('Pictures/'+image_name, content=image,
-                                   mediatype='')
+        href = self.doc.addPicture(unicode('Pictures/'+image_name), content=image,
+                                   mediatype=unicode(''))
         im = draw.Image(href=href, type='simple', actuate='onLoad', show='embed')
         f.addElement(im)
 
