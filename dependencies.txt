@@ -1,0 +1,16 @@
+from irg import IRG, get_param_monthly, get_param_range, get_image_info
+module level function could be leaved alone
+
+
+irg.get_report_by_name
+irg.get_stat
+irg.get_graph_image
+
+
+====
+from irg.repoti import Report, populate_words, replace_words
+report.insert_doc
+report.setup_styles
+report.generate_range
+report.generate_monthly
+report.save
