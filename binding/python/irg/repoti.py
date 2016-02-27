@@ -13,7 +13,8 @@ from odf.style import Style
 from odf.style import TextProperties, TableCellProperties, ParagraphProperties
 from odf.text import H, P, Span
 
-from irg import IRG, get_param_monthly, get_param_range, get_image_info
+#from irg import IRG, get_param_monthly, get_param_range, get_image_info
+from irg import get_param_monthly, get_param_range, get_image_info
 
 def build_style(name, family, properties, attributes={}):
     style = Style(name=name, family=family, **attributes)
@@ -366,8 +367,9 @@ class Report:
                                      timespan, start, end,
                                      report['begin_prime'], report['end_prime'])
             if not stat:
-                self.verbose('ignoring %s' % graph_id)
+                self.verbose('ignoring stat on %s' % graph_id)
                 continue
+
             image = self.irg.get_graph_image(graph_id, report['rratype_id'],
                                              start, end)
             self.generate_graph(stat, image)

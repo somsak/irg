@@ -53,12 +53,58 @@ def get_param_range(start, end):
     return end-start, start, end
 
 class IRG:
+    def __init__(self, url, user, passwd, verbose=True) :
+        self.url = url
+        self.user = user
+        self.passwd = passwd
+        self.verbose = verbose
+
+    def get_report_by_name(self, name) :
+        '''
+        This function return dictionary object corresponding to report name
+        with the following keywords. All values will be used as argument
+        of get_stat and get_graph_image so the format should correspond to
+        how each function interprete the data
+
+        - graph_ids - List of graph id in the corresponding report
+        - rratype_id - type id of the RRA (used for Cacti)
+        - begin_prime - start of prime (working) time
+        - end_prime - end of prime (working) time
+        '''
+
+    def get_stat(self, graph_id, rra_id, timespan, start_time, end_time, start_prime, end_prime):
+        '''
+        Generate statistics (table after each graph).
+        Return dictionary object with the following members
+
+        - meta - A dictionary object
+         - title - Title of the graph
+         - graph_id - ID of the graph (used as temporary file name in ODT)
+        - cols - List of dictionary object represent data in each row
+         - title - Title of data (Ex: Load average 1min)
+         - avg - Average of this value
+         - max - Peak value
+         - p_avg - Primetime average
+         - pre_avg - Previous average
+         - pre_max - Previous maximum (peak)
+         - pre_p_avg - Previous primetime average
+        '''
+        pass
+
+    def get_graph_image(self, graph_id, rra_id, start_time, end_time):
+        '''
+        Return PNG image of the corresponding graph_id, in binary form
+        '''
+        pass
+
+class CactiIRG(IRG):
     def __init__(self, url, user, passwd, verbose=True):
-        self._verbose = verbose
-        self.cacti_url = url+'index.php'
-        self.graph_url = url+'graph_image.php'
-        self.repoti_url = url+'plugins/repoti/repoti.php'
-        self.login(user, passwd)
+        IRG.__init__(self, url, user, passwd, verbose)
+        self._verbose = self.verbose
+        self.cacti_url = self.url+'index.php'
+        self.graph_url = self.url+'graph_image.php'
+        self.repoti_url = self.url+'plugins/repoti/repoti.php'
+        self.login(self.user, self.passwd)
 
     def verbose(self, msg):
         if self._verbose:

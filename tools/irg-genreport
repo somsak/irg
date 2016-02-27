@@ -8,7 +8,7 @@ import copy
 import locale
 import time
 
-from irg.irg import IRG, get_param_monthly, get_image_info
+from irg.irg import CactiIRG, get_param_monthly, get_image_info
 from irg.repoti import Report, populate_words, replace_words
 
 class App:
@@ -44,6 +44,8 @@ class App:
         parser.add_option('--footer', dest='footer',
                           default='REPORT_footer.odt',
                           help='Footer filename with REPORT substitution [report_footer.odt]')
+        parser.add_option('--type', dest='type', default = 'cacti',
+                            help = 'Report source type (cacti or zabbix)')
         parser.add_option('-o', '--output', dest='output',
                           default='REPORT_YYYYMM.odt',
                           help='Output filename with REPORT, YYYY, MM substitution [report_%d%d.odt]' % (now.year, now.month))
@@ -74,8 +76,11 @@ class App:
         self.options.footer = replace_words(self.options.footer, self.keywords)
 
     def run(self):
-        irg = IRG(self.url, self.options.user, self.options.password,
+        if self.options.type == 'cacti' :
+            irg = CactiIRG(self.url, self.options.user, self.options.password,
                   verbose=self.options.verbose)
+        else :
+            sys.exit(255)
         report = Report(irg, verbose=self.options.verbose)
         if os.path.exists(self.options.header):
             report.insert_doc(self.options.header, self.keywords)
