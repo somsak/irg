@@ -300,6 +300,10 @@ class Report:
                    'Previous Prime time Average']
         columns = ['title', 'avg', 'max', 'p_avg',
                    'pre_avg', 'pre_max', 'pre_p_avg']
+
+        if not stat.has_key('cols') :
+            return
+
         tab = table.Table()
         self.doc.text.addElement(tab)
 
@@ -355,28 +359,34 @@ class Report:
         timespan, start, end = get_param_monthly(year, month)
         return self._generate(timespan, start, end, report_name)
 
-    def _generate(self, timespan, start, end, report_name):
-        report = self.irg.get_report_by_name(report_name)
+    def _generate(self, timespan, start, end, report_names):
+        for report_name in report_names :
+            report = self.irg.get_report_by_name(report_name)
 
-        h = H(outlinelevel=1, stylename=self.styles['Heading 1'], text='Monthly Report')
-        self.doc.text.addElement(h)
+            try :
+                report_title = report['title']
+            except KeyError :
+                report_title = 'Monthly Report'
 
-        for graph_id in report['graph_ids']:
-            self.verbose('generating graph %s' % graph_id)
-            stat = self.irg.get_stat(graph_id, report['rratype_id'],
-                                     timespan, start, end,
-                                     report['begin_prime'], report['end_prime'])
-            if not stat:
-                self.verbose('ignoring stat on %s' % graph_id)
-                continue
+            h = H(outlinelevel=1, stylename=self.styles['Heading 1'], text=report_title)
+            self.doc.text.addElement(h)
 
-            image = self.irg.get_graph_image(graph_id, report['rratype_id'],
-                                             start, end)
-            self.generate_graph(stat, image)
-            self.generate_stat(stat)
+            for graph_id in report['graph_ids']:
+                self.verbose('generating graph %s' % graph_id)
+                stat = self.irg.get_stat(graph_id, report['rratype_id'],
+                                         timespan, start, end,
+                                         report['begin_prime'], report['end_prime'])
+                if not stat:
+                    self.verbose('ignoring stat on %s' % graph_id)
+                    continue
 
-        p = P()
-        self.doc.text.addElement(p)
+                image = self.irg.get_graph_image(graph_id, report['rratype_id'],
+                                                 start, end)
+                self.generate_graph(stat, image)
+                self.generate_stat(stat)
+
+            p = P()
+            self.doc.text.addElement(p)
 
     def save(self, filename):
         self.doc.save(filename)
