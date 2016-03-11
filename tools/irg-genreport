@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 import sys
 import os
@@ -8,7 +8,7 @@ import copy
 import locale
 import time
 
-from irg.irg import CactiIRG, get_param_monthly, get_image_info
+from irg.irg import CactiIRG, ZabbixIRG, get_param_monthly, get_image_info
 from irg.repoti import Report, populate_words, replace_words
 
 class App:
@@ -78,6 +78,9 @@ class App:
     def run(self):
         if self.options.type == 'cacti' :
             irg = CactiIRG(self.url, self.options.user, self.options.password,
+                  verbose=self.options.verbose)
+        elif self.options.type == 'zabbix' :
+            irg = ZabbixIRG(self.url, self.options.user, self.options.password,
                   verbose=self.options.verbose)
         else :
             sys.exit(255)

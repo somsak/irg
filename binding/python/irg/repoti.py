@@ -273,15 +273,19 @@ class Report:
 #            print e.tagName, e.attributes
 
     def generate_graph(self, stat, image):
-        title = stat['meta']['title']
+        try :
+            title = stat['meta']['title']
+        except KeyError :
+            title = None
         image_name = '10000000000003230000006DFEEF%04d.png' % int(stat['meta']['graph_id'])
         frame_name = 'graph_%s' % stat['meta']['graph_id']
         mime, width, height = get_image_info(image)
         width = width*72/96
         height = height*72/96
 
-        h = H(outlinelevel=2, stylename=self.styles['Heading 2'], text=title)
-        self.doc.text.addElement(h)
+        if title :
+            h = H(outlinelevel=2, stylename=self.styles['Heading 2'], text=title)
+            self.doc.text.addElement(h)
 
         p = P()
         self.doc.text.addElement(p)
@@ -382,7 +386,9 @@ class Report:
 
                 image = self.irg.get_graph_image(graph_id, report['rratype_id'],
                                                  start, end)
-                self.generate_graph(stat, image)
+                if image :
+                    self.generate_graph(stat, image)
+
                 self.generate_stat(stat)
 
             p = P()

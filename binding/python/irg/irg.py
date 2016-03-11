@@ -10,6 +10,12 @@ import re
 
 import simplejson
 
+try :
+    from pyzabbix import ZabbixAPI
+    has_zabbix_api = True
+except ImportError :
+    has_zabbix_api = False
+
 warning_cre = re.compile(r'<br />.*<br />\n', re.S)
 
 opener = urllib2.build_opener(urllib2.HTTPCookieProcessor())
@@ -66,6 +72,7 @@ class IRG:
         of get_stat and get_graph_image so the format should correspond to
         how each function interprete the data
 
+        - title(optional) - Custom title for this report (to be put in ODT)
         - graph_ids - List of graph id in the corresponding report
         - rratype_id - type id of the RRA (used for Cacti)
         - begin_prime - start of prime (working) time
@@ -88,6 +95,8 @@ class IRG:
          - pre_avg - Previous average
          - pre_max - Previous maximum (peak)
          - pre_p_avg - Previous primetime average
+
+         NOTE: If cols is not available, stat printing will be ignored
         '''
         pass
 
@@ -96,6 +105,78 @@ class IRG:
         Return PNG image of the corresponding graph_id, in binary form
         '''
         pass
+
+class ZabbixIRG(IRG) :
+    def __init__(self, url, user, passwd, verbose=True) :
+        IRG.__init__(self, url, user, passwd, verbose)
+        if not has_zabbix_api :
+            raise ImportError('No ZabbixAPI found')
+        self.zapi = ZabbixAPI(self.url)
+        self.zapi.login(self.user, self.passwd)
+        self.graph_cache = {}
+
+    def get_report_by_name(self, name) :
+        '''
+        Generate graph id(s) for the correspond screen
+        '''
+        screens = self.zapi.screen.get(filter={"name":name},
+            output='extend',
+            limit='10',
+        )
+        if not screens :
+            raise KeyError("Screen name %s could not be found" % (name))
+        screen = screens[0]
+        #print screen
+
+        retval = {}
+        retval['title'] = name
+        retval['rratype_id'] = None
+        retval['begin_prime'] = None
+        retval['end_prime'] = None
+
+        screen_items = self.zapi.screenitem.get(screenids=screen["screenid"],
+            output='extend',
+            limit='5000',
+        )
+        retval['graph_ids'] = []
+        #print screen_items
+        for screen_item in screen_items :
+            #print screen_item
+            if int(screen_item["resourcetype"]) != 0 :
+                continue
+            retval['graph_ids'].append(screen_item["resourceid"])
+
+        #print retval
+        return retval
+
+    def get_stat(self, graph_id, rra_id, timespan, start_time, end_time, start_prime, end_prime):
+        '''
+        Ignore all stat for now, return only graph name here
+        '''
+        # graph = self.zapi.graph.get(graphids = graph_id, expandname = True, output = 'extend')
+        # if not graph :
+        #     raise KeyError('Graph %s not found' % (graph_id))
+        # #print graph
+        # retval = {
+        #     'meta': {
+        #         'title': graph[0]['name'],
+        #         'graph_id': graph[0]['graphid']
+        #     }
+        # }
+        
+        # Since the graph name from Zabbix has no hostname and hostname is already presented
+        # inside the graph image, no need to put the extra title text here.
+        # Just return the graph_id as is
+        retval = {
+            'meta': {
+                'graph_id': graph_id
+            }
+        }
+
+        return retval
+
+    def get_graph_image(self, graph_id, rra_id, start_time, end_time):
+        return False
 
 class CactiIRG(IRG):
     def __init__(self, url, user, passwd, verbose=True):
