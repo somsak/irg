@@ -7,11 +7,13 @@ import urllib2
 from urllib2 import urlopen as _urlopen
 import struct
 import re
+import cStringIO
 
 import simplejson
 
 try :
     from pyzabbix import ZabbixAPI
+    from zabbiximg import ZabbixImg
     has_zabbix_api = True
 except ImportError :
     has_zabbix_api = False
@@ -113,7 +115,8 @@ class ZabbixIRG(IRG) :
             raise ImportError('No ZabbixAPI found')
         self.zapi = ZabbixAPI(self.url)
         self.zapi.login(self.user, self.passwd)
-        self.graph_cache = {}
+        self.zbx_img = ZabbixImg(self.url, self.user, self.passwd)
+        #self.graph_cache = {}
 
     def get_report_by_name(self, name) :
         '''
@@ -163,7 +166,7 @@ class ZabbixIRG(IRG) :
         #         'graph_id': graph[0]['graphid']
         #     }
         # }
-        
+
         # Since the graph name from Zabbix has no hostname and hostname is already presented
         # inside the graph image, no need to put the extra title text here.
         # Just return the graph_id as is
@@ -176,7 +179,10 @@ class ZabbixIRG(IRG) :
         return retval
 
     def get_graph_image(self, graph_id, rra_id, start_time, end_time):
-        return False
+        retval = cStringIO.StringIO()
+        self.zbx_img.fetch_img(graph_id, start_time, end_time, retval,
+            width = 500, height = 50)
+        return retval.getvalue()
 
 class CactiIRG(IRG):
     def __init__(self, url, user, passwd, verbose=True):
