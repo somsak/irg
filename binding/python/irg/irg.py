@@ -143,7 +143,15 @@ class ZabbixIRG(IRG) :
         )
         retval['graph_ids'] = []
         #print screen_items
-        for screen_item in screen_items :
+        # sort screen by Y coordinate
+        def screen_item_cmp(x, y) :
+            retval = cmp(int(x["x"]), int(y["x"]))
+            if retval == 0 :
+                retval = cmp(int(x["y"]), int(y["y"]))
+            return retval
+
+        screen_items_sorted = sorted(screen_items, screen_item_cmp)
+        for screen_item in screen_items_sorted :
             #print screen_item
             if int(screen_item["resourcetype"]) != 0 :
                 continue
