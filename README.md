@@ -11,16 +11,16 @@ The project contain 2 components
     work on Windows.
  1. Install dependencies using your desired package management system or
     just 'pip install' it.
-   1. odfpy
-   1. pyzabbix
+   - odfpy
+   - pyzabbix
  1. Clone this repository somewhere.
  1. Set PYTHONPATH to the irg/binding/python directory
 
 ## How to generate report from Zabbix
 
  1. In Zabbix, create one or more Screen that will represent your report.
-   1. The screen must only has 1 column and contains only Graph. Recommend width is 600 and height is 100.
-   1. Name it with some nice name. The name will appear as Heading 1 in the generated report.
+   - The screen must only has 1 column and contains only Graph. Recommend width is 600 and height is 100.
+   - Name it with some nice name. The name will appear as Heading 1 in the generated report.
  1. Don't forget to set PYTHONPATH
  1. Run the report generation command './irg-genreport'. For example
 
