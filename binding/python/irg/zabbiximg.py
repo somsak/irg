@@ -6,12 +6,13 @@ import pycurl
 
 class ZabbixImg(object) :
 
-    def __init__(self, zbx_base_url, user, password, verbose = False) :
+    def __init__(self, zbx_base_url, user, password, verbose = False, version = 3) :
         self.zbx_base_url = zbx_base_url
         if not self.zbx_base_url.endswith('/') :
             self.zbx_base_url += '/'
         self.user = user
         self.password = password
+        self.zabbix_version = version
 
         self.curl = pycurl.Curl()
         self.curl.setopt(pycurl.COOKIEFILE, "")
@@ -50,20 +51,40 @@ class ZabbixImg(object) :
         @param width width of the graph
         @param height height of the graph
         '''
-        period = end_time - start_time
-        start_time_str = time.strftime("%Y%m%d%H%M%S", time.localtime(start_time))
-        data = urllib.urlencode(
-                {
-                    'graphid': str(graphid),
-                    'stime': start_time_str,
-                    'period': str(period),
-                    'width': str(width),
-                    'height': str(height),
-                }
-        )
-        l = list(urlparse.urlparse( urlparse.urljoin(self.zbx_base_url, 'chart2.php')))
-        l[4] = data
+
+        if self.zabbix_version < 4 :
+            # Zabbix is older than 3.2
+            period = end_time - start_time
+            start_time_str = time.strftime("%Y%m%d%H%M%S", time.localtime(start_time))
+            data = urllib.urlencode(
+                    {
+                        'graphid': str(graphid),
+                        'stime': start_time_str,
+                        'period': str(period),
+                        'width': str(width),
+                        'height': str(height),
+                    }
+            )
+            l = list(urlparse.urlparse( urlparse.urljoin(self.zbx_base_url, 'chart2.php')))
+            l[4] = data
+        else :
+            # Newer zabbix
+            start_time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time))
+            end_time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(end_time))
+            data = urllib.urlencode(
+                    {
+                        'graphid': str(graphid),
+                        'from': start_time_str,
+                        'to': end_time_str,
+                        'profileIdx': 'web.graphs.filter',
+                        'width': str(width),
+                        'height': str(height),
+                    }
+            )
+            l = list(urlparse.urlparse( urlparse.urljoin(self.zbx_base_url, 'chart2.php')))
+            l[4] = data
         url = urlparse.urlunparse(l)
+        #print 'Fetching URL = ', url
         self.curl.setopt(pycurl.URL, url)
         self.curl.setopt(pycurl.WRITEDATA, output)
         self.curl.perform()

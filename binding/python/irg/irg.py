@@ -114,8 +114,13 @@ class ZabbixIRG(IRG) :
         if not has_zabbix_api :
             raise ImportError('No ZabbixAPI found')
         self.zapi = ZabbixAPI(self.url)
+        version = self.zapi.api_version().split('.')
+        if int(version[0]) >= 4 :
+            zbx_version = 4
+        else :
+            zbx_version = 3
         self.zapi.login(self.user, self.passwd)
-        self.zbx_img = ZabbixImg(self.url, self.user, self.passwd)
+        self.zbx_img = ZabbixImg(self.url, self.user, self.passwd, version = zbx_version)
         #self.graph_cache = {}
 
     def get_report_by_name(self, name) :
