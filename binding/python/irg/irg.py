@@ -117,6 +117,8 @@ class ZabbixIRG(IRG) :
         version = self.zapi.api_version().split('.')
         if int(version[0]) >= 4 :
             zbx_version = 4
+        # elif int(version[0]) == 3 and int(version[1]) >= 4:
+        #     zbx_version = 4
         else :
             zbx_version = 3
         self.zapi.login(self.user, self.passwd)

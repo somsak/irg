@@ -63,6 +63,7 @@ class ZabbixImg(object) :
                         'period': str(period),
                         'width': str(width),
                         'height': str(height),
+                        'isNow': '0',
                     }
             )
             l = list(urlparse.urlparse( urlparse.urljoin(self.zbx_base_url, 'chart2.php')))

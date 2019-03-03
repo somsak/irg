@@ -60,11 +60,14 @@ class App:
 
         if self.options.range:
             start_date, end_date = self.options.range.split('-')
-            start = time.strptime(start_date, '%Y%m%d')
+            start = time.strptime(start_date + '_000000', '%Y%m%d_%H%M%S')
             self.options.year = start[0]
             self.options.month = start[1]
             self.options.start = time.mktime(start)
-            self.options.end = time.mktime(time.strptime(end_date, '%Y%m%d'))
+            self.options.end = time.mktime(time.strptime(end_date + '_000000', '%Y%m%d_%H%M%S'))
+
+        #print self.options.start
+        #print self.options.end
 
         self.keywords = [('REPORT', str(self.options.report)),
                          ('YYYY', str(self.options.year)),
