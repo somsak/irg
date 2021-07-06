@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-import os, sys, urlparse, urllib, time
+import os, sys, urllib.parse, urllib.request, urllib.parse, urllib.error, time
 
 import pycurl
 
@@ -19,12 +19,12 @@ class ZabbixImg(object) :
         self.curl.setopt(pycurl.VERBOSE, verbose)
 
         # Log-in
-        self.curl.setopt(pycurl.URL, urlparse.urljoin(self.zbx_base_url, "index.php"))
+        self.curl.setopt(pycurl.URL, urllib.parse.urljoin(self.zbx_base_url, "index.php"))
         self.curl.setopt(pycurl.POST, 1)
         form_data = [
                     ("request", ""),
-                    ("name", urllib.quote(self.user)),
-                    ("password", urllib.quote(self.password)),
+                    ("name", urllib.parse.quote(self.user)),
+                    ("password", urllib.parse.quote(self.password)),
                     ("autologin", "1"),
                     ("enter", "Sign in"),
                 ]
@@ -56,7 +56,7 @@ class ZabbixImg(object) :
             # Zabbix is older than 3.2
             period = end_time - start_time
             start_time_str = time.strftime("%Y%m%d%H%M%S", time.localtime(start_time))
-            data = urllib.urlencode(
+            data = urllib.parse.urlencode(
                     {
                         'graphid': str(graphid),
                         'stime': start_time_str,
@@ -66,13 +66,13 @@ class ZabbixImg(object) :
                         'isNow': '0',
                     }
             )
-            l = list(urlparse.urlparse( urlparse.urljoin(self.zbx_base_url, 'chart2.php')))
+            l = list(urllib.parse.urlparse( urllib.parse.urljoin(self.zbx_base_url, 'chart2.php')))
             l[4] = data
         else :
             # Newer zabbix
             start_time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time))
             end_time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(end_time))
-            data = urllib.urlencode(
+            data = urllib.parse.urlencode(
                     {
                         'graphid': str(graphid),
                         'from': start_time_str,
@@ -82,10 +82,11 @@ class ZabbixImg(object) :
                         'height': str(height),
                     }
             )
-            l = list(urlparse.urlparse( urlparse.urljoin(self.zbx_base_url, 'chart2.php')))
+            l = list(urllib.parse.urlparse( urllib.parse.urljoin(self.zbx_base_url, 'chart2.php')))
             l[4] = data
-        url = urlparse.urlunparse(l)
-        #print 'Fetching URL = ', url
+        url = urllib.parse.urlunparse(l)
+        #print('Fetching URL = ' + url)
+        #self.curl.setopt(pycurl.VERBOSE, True)
         self.curl.setopt(pycurl.URL, url)
         self.curl.setopt(pycurl.WRITEDATA, output)
         self.curl.perform()
@@ -96,6 +97,6 @@ if __name__ == '__main__' :
     zbximg = ZabbixImg('https://www.test.com/zabbi/', 'report', '')
     start = int(time.mktime((2016, 1, 1, 0, 0, 0, 0, 0, 0)))
     end = int(time.mktime((2016, 1, 31, 23, 59, 60, 0, 0, 0)))
-    print start, time.ctime(start)
-    print end, time.ctime(end)
+    print(start, time.ctime(start))
+    print(end, time.ctime(end))
     zbximg.fetch_img(2029, start, end, open('output.png', 'wb'))

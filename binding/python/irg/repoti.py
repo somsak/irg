@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 import sys
 import os
@@ -14,7 +14,7 @@ from odf.style import TextProperties, TableCellProperties, ParagraphProperties
 from odf.text import H, P, Span
 
 #from irg import IRG, get_param_monthly, get_param_range, get_image_info
-from irg import get_param_monthly, get_param_range, get_image_info
+from .irg import get_param_monthly, get_param_range, get_image_info
 
 def build_style(name, family, properties, attributes={}):
     style = Style(name=name, family=family, **attributes)
@@ -41,14 +41,21 @@ def populate_words(year, month):
     end_time = time.localtime(end)
 
     en_month = time.strftime('%B', end_time)
-    old = locale.getlocale(locale.LC_ALL)
+#    old = locale.getlocale(locale.LC_ALL)
+    old = locale.getlocale()
     locale.setlocale(locale.LC_ALL, 'th_TH.UTF-8')
 
+#    words = [('%enmonth', en_month),
+#             ('%thmonth', time.strftime('%B', end_time).decode('utf-8')),
+#             ('%year', time.strftime('%Y', end_time)),
+#             ('%start_date', time.strftime('%d %B %Y', start_time).decode('utf-8')[1:]),
+#             ('%end_date', time.strftime('%d %B %Y', end_time).decode('utf-8')[1:])]
+
     words = [('%enmonth', en_month),
-             ('%thmonth', time.strftime('%B', end_time).decode('utf-8')),
+             ('%thmonth', time.strftime('%B', end_time)),
              ('%year', time.strftime('%Y', end_time)),
-             ('%start_date', time.strftime('%d %B %Y', start_time).decode('utf-8')[1:]),
-             ('%end_date', time.strftime('%d %B %Y', end_time).decode('utf-8')[1:])]
+             ('%start_date', time.strftime('%d %B %Y', start_time)[1:]),
+             ('%end_date', time.strftime('%d %B %Y', end_time)[1:])]
 
     locale.setlocale(locale.LC_ALL, old)
     return words
@@ -61,7 +68,7 @@ class Report:
 
     def verbose(self, msg):
         if self._verbose:
-            print msg
+            print(msg)
 
     def setup_styles(self):
         s = self.doc.styles
@@ -293,8 +300,8 @@ class Report:
                        anchortype='as-char', name=frame_name)
         p.addElement(f)
 
-        href = self.doc.addPicture(unicode('Pictures/'+image_name), content=image,
-                                   mediatype=unicode(''))
+        href = self.doc.addPicture(str('Pictures/'+image_name), content=image,
+                                   mediatype=str(''))
         im = draw.Image(href=href, type='simple', actuate='onLoad', show='embed')
         f.addElement(im)
 
@@ -305,7 +312,7 @@ class Report:
         columns = ['title', 'avg', 'max', 'p_avg',
                    'pre_avg', 'pre_max', 'pre_p_avg']
 
-        if not stat.has_key('cols') :
+        if 'cols' not in stat :
             return
 
         tab = table.Table()

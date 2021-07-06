@@ -1,27 +1,27 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import calendar
 import time
-import urllib
-import urllib2
-from urllib2 import urlopen as _urlopen
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
+from urllib.request import urlopen as _urlopen
 import struct
 import re
-import cStringIO
-
-import simplejson
+import io
+import json
+from functools import cmp_to_key
 
 try :
     from pyzabbix import ZabbixAPI
-    from zabbiximg import ZabbixImg
+    from .zabbiximg import ZabbixImg
     has_zabbix_api = True
 except ImportError :
     has_zabbix_api = False
 
 warning_cre = re.compile(r'<br />.*<br />\n', re.S)
 
-opener = urllib2.build_opener(urllib2.HTTPCookieProcessor())
-urllib2.install_opener(opener)
+opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor())
+urllib.request.install_opener(opener)
 
 def urlopen(*args):
     return _urlopen(*args)
@@ -152,12 +152,12 @@ class ZabbixIRG(IRG) :
         #print screen_items
         # sort screen by Y coordinate
         def screen_item_cmp(x, y) :
-            retval = cmp(int(x["x"]), int(y["x"]))
+            retval = ( (int(x["x"]) > int(y["x"])) - (int(x["x"]) < int(y["x"])) )
             if retval == 0 :
-                retval = cmp(int(x["y"]), int(y["y"]))
+                retval = ( (int(x["y"]) > int(y["y"])) - (int(x["y"]) < int(y["y"]))  )
             return retval
 
-        screen_items_sorted = sorted(screen_items, screen_item_cmp)
+        screen_items_sorted = sorted(screen_items, key=cmp_to_key(screen_item_cmp))
         for screen_item in screen_items_sorted :
             #print screen_item
             if int(screen_item["resourcetype"]) != 0 :
@@ -194,7 +194,7 @@ class ZabbixIRG(IRG) :
         return retval
 
     def get_graph_image(self, graph_id, rra_id, start_time, end_time):
-        retval = cStringIO.StringIO()
+        retval = io.BytesIO()
         self.zbx_img.fetch_img(graph_id, start_time, end_time, retval,
             width = 500, height = 50)
         return retval.getvalue()
@@ -210,52 +210,52 @@ class CactiIRG(IRG):
 
     def verbose(self, msg):
         if self._verbose:
-            print msg
+            print(msg)
 
     def login(self, user, passwd):
         data = {'action': 'login',
                 'login_username': user,
                 'login_password': passwd}
-        fd = urlopen(self.cacti_url, urllib.urlencode(data))
+        fd = urlopen(self.cacti_url, urllib.parse.urlencode(data))
         fd.read()
 
     def get_rras(self):
         data = {'c': 'rras',
                 'a': 'get'}
-        fd = urlopen(self.repoti_url+'?'+urllib.urlencode(data))
+        fd = urlopen(self.repoti_url+'?'+urllib.parse.urlencode(data))
         json = fd.read()
-        return simplejson.loads(json)
+        return json.loads(json)
 
     def get_rra_by_id(self, id):
         data = {'c': 'rras',
                 'a': 'get',
                 'id': str(id)}
-        fd = urlopen(self.repoti_url+'?'+urllib.urlencode(data))
+        fd = urlopen(self.repoti_url+'?'+urllib.parse.urlencode(data))
         json = fd.read()
-        return simplejson.loads(json)
+        return json.loads(json)
 
     def get_hosts(self):
         data = {'c': 'hosts',
                 'a': 'get'}
-        fd = urlopen(self.repoti_url+'?'+urllib.urlencode(data))
+        fd = urlopen(self.repoti_url+'?'+urllib.parse.urlencode(data))
         json = fd.read()
-        return simplejson.loads(json)
+        return json.loads(json)
 
     def get_graphs_by_host(self, host_id):
         data = {'c': 'graphs',
                 'a': 'getByHostId',
                 'hostId': str(host_id)}
-        fd = urlopen(self.repoti_url+'?'+urllib.urlencode(data))
+        fd = urlopen(self.repoti_url+'?'+urllib.parse.urlencode(data))
         json = fd.read()
-        return simplejson.loads(json)
+        return json.loads(json)
 
     def get_reports(self):
         data = {'c': 'reports',
                 'a': 'get'}
-        fd = urlopen(self.repoti_url+'?'+urllib.urlencode(data))
+        fd = urlopen(self.repoti_url+'?'+urllib.parse.urlencode(data))
         json = fd.read()
         reports = []
-        for report in simplejson.loads(json):
+        for report in json.loads(json):
             report['graph_ids'] = report['graph_ids'].split(',')
             reports.append(report)
         return reports
@@ -276,14 +276,14 @@ class CactiIRG(IRG):
                 'graphEnd': str(end_time),
                 'beginPrime': start_prime,
                 'endPrime': end_prime}
-        fd = urlopen(self.repoti_url+'?'+urllib.urlencode(data))
+        fd = urlopen(self.repoti_url+'?'+urllib.parse.urlencode(data))
         json = fd.read()
         json = warning_cre.sub('', json)
         try:
-            o = simplejson.loads(json)
-        except Exception, why:
-            print self.repoti_url+'?'+urllib.urlencode(data)
-            print json
+            o = json.loads(json)
+        except Exception as why:
+            print(self.repoti_url+'?'+urllib.parse.urlencode(data))
+            print(json)
             o = None
         return o
 
@@ -292,17 +292,17 @@ class CactiIRG(IRG):
                 'rra_id': str(rra_id),
                 'graph_start': str(start_time),
                 'graph_end': str(end_time)}
-        fd = urlopen(self.graph_url+'?'+urllib.urlencode(data))
+        fd = urlopen(self.graph_url+'?'+urllib.parse.urlencode(data))
         content = fd.read()
         return content
 
 if __name__ == '__main__':
     irg = IRG('http://127.0.0.1/cacti/', 'admin', 'xxx')
-    print irg.get_rras()
-    print irg.get_rras(3)
-    print irg.get_hosts()
-    print irg.get_graphs_by_host(2)
-    print irg.get_reports()
-    print irg.get_stat(132, 3, 2678400, 1288717200, 1291395600, '08:00', '12:00')
+    print(irg.get_rras())
+    print(irg.get_rras(3))
+    print(irg.get_hosts())
+    print(irg.get_graphs_by_host(2))
+    print(irg.get_reports())
+    print(irg.get_stat(132, 3, 2678400, 1288717200, 1291395600, '08:00', '12:00'))
     #print irg.get_graph_image(132, 3, 1288717200, 1291395600)
-    print get_param_monthly(2010, 11)
+    print(get_param_monthly(2010, 11))
