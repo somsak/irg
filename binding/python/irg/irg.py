@@ -11,6 +11,10 @@ import io
 import json
 from functools import cmp_to_key
 
+import imghdr
+import io
+from PIL import Image
+
 try :
     from pyzabbix import ZabbixAPI
     from .zabbiximg import ZabbixImg
@@ -27,27 +31,13 @@ def urlopen(*args):
     return _urlopen(*args)
 
 def get_image_info(data):
-    size = len(data)
-    height = -1
-    width = -1
-    content_type = ''
+    type = imghdr.what(None, h = data)
+    content_type = "image/" + type
+    image = Image.open(io.BytesIO(data))
 
-    if ((size >= 24) and (data[:8] == '\211PNG\r\n\032\n')
-          and (data[12:16] == 'IHDR')):
-        content_type = 'image/png'
-        w, h = struct.unpack(">LL", data[16:24])
-        width = int(w)
-        height = int(h)
 
-    # Maybe this is for an older PNG version.
-    elif (size >= 16) and (data[:8] == '\211PNG\r\n\032\n'):
-        # Check to see if we have the right content type
-        content_type = 'image/png'
-        w, h = struct.unpack(">LL", data[8:16])
-        width = int(w)
-        height = int(h)
-
-    return content_type, width, height
+    #print("get_image_info type={}, width={}, height={}".format(content_type, image.width, image.height))
+    return content_type, image.width, image.height
 
 def get_param_monthly(year, month):
     day, last = calendar.monthrange(year, month)

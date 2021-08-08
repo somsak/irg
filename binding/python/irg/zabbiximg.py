@@ -94,9 +94,9 @@ class ZabbixImg(object) :
 if __name__ == '__main__' :
     import time
 
-    zbximg = ZabbixImg('https://www.test.com/zabbi/', 'report', '')
-    start = int(time.mktime((2016, 1, 1, 0, 0, 0, 0, 0, 0)))
-    end = int(time.mktime((2016, 1, 31, 23, 59, 60, 0, 0, 0)))
+    zbximg = ZabbixImg('https://www.zabbix.com/zabbix/', 'report', '')
+    start = int(time.mktime((2021, 7, 1, 0, 0, 0, 0, 0, 0)))
+    end = int(time.mktime((2021, 8, 1, 0, 0, 0, 0, 0, 0)))
     print(start, time.ctime(start))
     print(end, time.ctime(end))
-    zbximg.fetch_img(2029, start, end, open('output.png', 'wb'))
+    zbximg.fetch_img(635, start, end, open('output.png', 'wb'))

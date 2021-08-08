@@ -290,6 +290,8 @@ class Report:
         width = width*72/96
         height = height*72/96
 
+        #print("generate_graph - Mime={}, Width={}, Height={}".format(mime, width, height))
+
         if title :
             h = H(outlinelevel=2, stylename=self.styles['Heading 2'], text=title)
             self.doc.text.addElement(h)
