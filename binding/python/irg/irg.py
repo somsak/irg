@@ -10,6 +10,7 @@ import re
 import io
 import json
 from functools import cmp_to_key
+from pprint import pprint
 
 import imghdr
 import io
@@ -119,42 +120,57 @@ class ZabbixIRG(IRG) :
         '''
         Generate graph id(s) for the correspond screen
         '''
-        screens = self.zapi.screen.get(filter={"name":name},
+        screens = self.zapi.dashboard.get(filter={"name":name},
             output='extend',
+            selectPages='extend',
+            selectUsers='extend',
+            selectUserGroups='extend',
             limit='10',
         )
         if not screens :
-            raise KeyError("Screen name %s could not be found" % (name))
+            raise KeyError("Dashboard name %s could not be found" % (name))
         screen = screens[0]
-        #print screen
+        pprint(screen)
 
-        retval = {}
+        retval = {
+            'title': name,
+            'rratype_id': None,
+            'begine_prime': None,
+            'end_prime': None,
+            'graph_ids': []
+        }
         retval['title'] = name
         retval['rratype_id'] = None
         retval['begin_prime'] = None
         retval['end_prime'] = None
 
-        screen_items = self.zapi.screenitem.get(screenids=screen["screenid"],
-            output='extend',
-            limit='5000',
-        )
-        retval['graph_ids'] = []
-        #print screen_items
-        # sort screen by Y coordinate
-        def screen_item_cmp(x, y) :
-            retval = ( (int(x["x"]) > int(y["x"])) - (int(x["x"]) < int(y["x"])) )
-            if retval == 0 :
-                retval = ( (int(x["y"]) > int(y["y"])) - (int(x["y"]) < int(y["y"]))  )
-            return retval
 
-        screen_items_sorted = sorted(screen_items, key=cmp_to_key(screen_item_cmp))
-        for screen_item in screen_items_sorted :
-            #print screen_item
-            if int(screen_item["resourcetype"]) != 0 :
-                continue
-            retval['graph_ids'].append(screen_item["resourceid"])
+        for page in screen['pages'] :
+            for widget in page['widgets'] :
+                if widget['type'] == 'graph' :
+                    retval['graph_ids'].append(widget['fields'][0]['value'])
+                
+        # screen_items = self.zapi.screenitem.get(screenids=screen["screenid"],
+        #     output='extend',
+        #     limit='5000',
+        # )
+        # retval['graph_ids'] = []
+        # #print screen_items
+        # # sort screen by Y coordinate
+        # def screen_item_cmp(x, y) :
+        #     retval = ( (int(x["x"]) > int(y["x"])) - (int(x["x"]) < int(y["x"])) )
+        #     if retval == 0 :
+        #         retval = ( (int(x["y"]) > int(y["y"])) - (int(x["y"]) < int(y["y"]))  )
+        #     return retval
 
-        #print retval
+        # screen_items_sorted = sorted(screen_items, key=cmp_to_key(screen_item_cmp))
+        # for screen_item in screen_items_sorted :
+        #     #print screen_item
+        #     if int(screen_item["resourcetype"]) != 0 :
+        #         continue
+        #     retval['graph_ids'].append(screen_item["resourceid"])
+
+        # #print retval
         return retval
 
     def get_stat(self, graph_id, rra_id, timespan, start_time, end_time, start_prime, end_prime):
