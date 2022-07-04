@@ -130,7 +130,7 @@ class ZabbixIRG(IRG) :
         if not screens :
             raise KeyError("Dashboard name %s could not be found" % (name))
         screen = screens[0]
-        pprint(screen)
+        #pprint(screen)
 
         retval = {
             'title': name,
