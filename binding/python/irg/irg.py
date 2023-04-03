@@ -16,12 +16,9 @@ import imghdr
 import io
 from PIL import Image
 
-try :
-    from pyzabbix import ZabbixAPI
-    from .zabbiximg import ZabbixImg
-    has_zabbix_api = True
-except ImportError :
-    has_zabbix_api = False
+from pyzabbix import ZabbixAPI
+from irg.zabbiximg import ZabbixImg
+has_zabbix_api = True
 
 warning_cre = re.compile(r'<br />.*<br />\n', re.S)
 
